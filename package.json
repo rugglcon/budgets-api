@@ -1,0 +1,17 @@
+{
+  "name": "budgets-api",
+  "version": "1.0.0",
+  "description": "REST API for budget tracker app",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Connor Ruggles",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@types/express": "^4.16.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "typescript": "^2.9.2"
+  }
+}
