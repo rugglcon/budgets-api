@@ -26,6 +26,7 @@
       "spaces"
     ],
     "interface-over-type-literal": true,
+    "prefer-conditional-expression": true,
     "label-position": true,
     "max-line-length": [
       true,
@@ -90,8 +91,7 @@
     "radix": true,
     "semicolon": [
       true,
-      "always",
-      "ignore-interfaces"
+      "always"
     ],
     "triple-equals": [
       true,

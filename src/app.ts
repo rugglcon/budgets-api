@@ -1,15 +1,19 @@
-import { Budget, NewBudget } from './models/budget';
+import { Budget, NewBudget, Expense } from './entities/budget';
 import { Query } from './util/query';
 import * as auth from './logic/auth';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as budgets from './logic/budgets';
 import * as expenses from './logic/expenses';
-import { Credentials, NewUser } from 'models/user';
+import { Credentials, NewUser } from './entities/user';
+import * as typeorm from 'typeorm';
 
 class App {
     public app: express.Application;
     query: Query;
+    dbConnection: typeorm.Connection;
+    budgetLogic: budgets.BudgetLogic;
+    expenseLogic: expenses.ExpenseLogic;
 
     constructor() {
         this.app = express();
@@ -52,17 +56,17 @@ class App {
              * without a password; just username and email
              * decided on not even that, just create budgets with unique titles
              */
-            budgets.getAll(this.query)
+            this.budgetLogic.getAll()
             .then(data => {
-                console.log('app.ts: 51', data);
-                res.send(data);
+                console.log('all budgets', data);
+                res.status(200).send(data);
             })
             .catch(err => {
                 res.status(500).send({message: 'Something went wrong.', err: err});
             });
-            // auth.authenticate(this.query, req.body.username, req.body.email)
+            // auth.authenticate(this.dbConnection, req.body.username, req.body.email)
             // .then(data => {
-            //     budgets.getAll(this.query, data[0].id)
+            //     budgets.getAll(this.dbConnection, data[0].id)
             //     .then(b => {
             //         console.log(b);
             //         res.send(b);
@@ -76,12 +80,12 @@ class App {
         // gets a specific budget
         router.get('/budgets/:id(\d+)', (req, res) => {
             // should validate user then return the budget if user owns it
-            budgets.getBudgetById(this.query, req.params.id)
+            budgets.getBudgetById(this.dbConnection, req.params.id)
             .then(data => {
                 if (data == null) {
                     res.status(404).send({message: 'That budget wasn\'t found'});
                 } else {
-                    res.send(data);
+                    res.status(200).send(data);
                 }
             })
             .catch(err => {
@@ -92,12 +96,11 @@ class App {
         // updates a budget
         router.patch('/budgets/:id(\d+)', (req, res) => {
             // should validate user then update the budget
-            const id = req.params;
             const budg = req.body.budget;
-            budgets.updateBudget(this.query, budg)
+            this.budgetLogic.update(budg)
             .then(data => {
                 console.log(data);
-                res.send(data);
+                res.status(200).send(data);
             })
             .catch(err => {
                 res.status(500).send({message: 'Something went wrong.', err: err});
@@ -107,15 +110,15 @@ class App {
         // creates a budget
         router.post('/budgets', (req, res) => {
             // should validate user then create the budget
-            const budget: NewBudget = {
+            // the body comes in as a NewBudget object
+            const budget = {
                 name: req.body.name,
-                total: req.body.total,
-                subBudget: req.body.children,
-                expenses: req.body.expenses
-            };
-            budgets.makeBudget(this.query, budget)
+                owner: req.body.owner
+            } as Budget;
+
+            this.budgetLogic.create(budget)
             .then(data => {
-                res.send(data);
+                res.status(200).send(data);
             })
             .catch(err => {
                 if (err == null) {
@@ -129,7 +132,7 @@ class App {
         // deletes a budget
         router.delete('/budgets/:id(\d+)', (req, res) => {
             // validate user then delete the budget
-            budgets.deleteBudget(this.query, Number(req.params.id))
+            this.budgetLogic.delete(Number(req.params.id))
             .then(data => {
                 console.log(data);
                 res.send(data);
@@ -142,8 +145,14 @@ class App {
         /**
          * EXPENSE ROUTES
          */
+        // creates an expense
         router.post('/expense', (req, res) => {
-            expenses.makeExpense(this.query, req.body.newExpense)
+            const expense = {
+                title: req.body.title,
+                cost: +(req.body.cost),
+                budgetId: +(req.body.budgetId)
+            } as Expense;
+            this.expenseLogic.create(expense)
             .then(reS => {
                 console.log(reS);
                 res.send(reS);
@@ -154,9 +163,18 @@ class App {
         });
 
         router.delete('/expense/:id(\d+)', (req, res) => {
-            expenses.deleteExpense(this.query, Number(req.params.id))
-            .then(() => {
-                res.send(null);
+            this.expenseLogic.delete(Number(req.params.id))
+            .then(success => {
+                let status = 204;
+                let content = null;
+                if (success) {
+                    status = 204;
+                } else {
+                    status = 500;
+                    content = 'Something went wrong trying to delete the expense.';
+                }
+
+                res.status(status).send(content);
             })
             .catch(err => {
                 res.status(500).send({message: 'Something went wrong.', err: err});
@@ -177,7 +195,7 @@ class App {
                 username: req.body.username,
                 password: req.body.password
             };
-            const data = await auth.login(this.query, creds);
+            const data = await auth.login(this.dbConnection, creds);
             res.send(data);
         });
 
@@ -191,7 +209,7 @@ class App {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName
             };
-            const data = await auth.signup(this.query, newUser);
+            const data = await auth.signup(this.dbConnection, newUser);
             console.log(data);
             if (!data.result) {
                 console.error(data.err);

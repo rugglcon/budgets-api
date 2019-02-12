@@ -1,6 +1,6 @@
 import * as mysql from 'mysql';
-import { MysqlParams } from 'models/mysql';
-import { Result } from 'models/result';
+import { MysqlParams } from '../entities/mysql';
+import { Result } from '../entities/result';
 
 export class Query {
     connection: mysql.Pool;
@@ -9,7 +9,7 @@ export class Query {
     }
 
     query<T>(params: MysqlParams): Promise<Result<mysql.MysqlError, T[]>> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.connection.getConnection((err, conn) => {
                 if (err) {
                     resolve({
