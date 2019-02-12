@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { Repository, FindManyOptions, FindOneOptions } from "typeorm";
 
 export class BaseLogic<T> {
     protected _repo: Repository<T>;
@@ -52,6 +52,14 @@ export class BaseLogic<T> {
      */
     async create(item: T): Promise<T> {
         const created = await this._repo.create(item);
-        return await this._repo.save(created);
+        return await this._repo.save(item);
+    }
+
+    async get(options: FindOneOptions): Promise<T> {
+        return await this._repo.findOne(options);
+    }
+
+    async getMany(options: FindManyOptions): Promise<T[]> {
+        return await this._repo.find(options);
     }
 }

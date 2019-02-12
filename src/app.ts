@@ -1,11 +1,12 @@
-import { Budget, NewBudget, Expense } from './entities/budget';
+import { Budget, NewBudget, Expense, NewExpense } from './entities/budget';
 import { Query } from './util/query';
 import * as auth from './logic/auth';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as budgets from './logic/budgets';
+import * as users from './logic/users';
 import * as expenses from './logic/expenses';
-import { Credentials, NewUser } from './entities/user';
+import { Credentials, NewUser, User } from './entities/user';
 import * as typeorm from 'typeorm';
 
 class App {
@@ -14,6 +15,8 @@ class App {
     dbConnection: typeorm.Connection;
     budgetLogic: budgets.BudgetLogic;
     expenseLogic: expenses.ExpenseLogic;
+    userLogic: users.UserLogic;
+    authLogic: auth.AuthLogic;
 
     constructor() {
         this.app = express();
@@ -80,7 +83,7 @@ class App {
         // gets a specific budget
         router.get('/budgets/:id(\d+)', (req, res) => {
             // should validate user then return the budget if user owns it
-            budgets.getBudgetById(this.dbConnection, req.params.id)
+            this.budgetLogic.getById(+(req.params.id))
             .then(data => {
                 if (data == null) {
                     res.status(404).send({message: 'That budget wasn\'t found'});
@@ -89,14 +92,14 @@ class App {
                 }
             })
             .catch(err => {
-                res.status(400).send({message: 'Something went wrong.', err: err});
+                res.status(500).send({message: 'Something went wrong.', err: err});
             });
         });
 
         // updates a budget
         router.patch('/budgets/:id(\d+)', (req, res) => {
             // should validate user then update the budget
-            const budg = req.body.budget;
+            const budg = (<Budget>req.body);
             this.budgetLogic.update(budg)
             .then(data => {
                 console.log(data);
@@ -111,21 +114,14 @@ class App {
         router.post('/budgets', (req, res) => {
             // should validate user then create the budget
             // the body comes in as a NewBudget object
-            const budget = {
-                name: req.body.name,
-                owner: req.body.owner
-            } as Budget;
+            const newBudget = (<NewBudget>req.body);
 
-            this.budgetLogic.create(budget)
+            this.budgetLogic.create(newBudget as Budget)
             .then(data => {
                 res.status(200).send(data);
             })
             .catch(err => {
-                if (err == null) {
-                    res.status(400).send({message: 'That budget name already exists.', err: err});
-                } else {
-                    res.status(500).send({message: 'Something went wrong.', err: err});
-                }
+                res.status(500).send({message: 'Something went wrong.', err: err});
             });
         });
 
@@ -147,10 +143,11 @@ class App {
          */
         // creates an expense
         router.post('/expense', (req, res) => {
+            const newExpense = (<NewExpense>req.body);
             const expense = {
-                title: req.body.title,
-                cost: +(req.body.cost),
-                budgetId: +(req.body.budgetId)
+                title: newExpense.title,
+                cost: +(newExpense.cost),
+                budgetId: +(newExpense.budgetId)
             } as Expense;
             this.expenseLogic.create(expense)
             .then(reS => {
@@ -192,30 +189,34 @@ class App {
         router.post('/user', async (req, res) => {
             // logs the user in
             const creds: Credentials = {
-                username: req.body.username,
+                userName: req.body.username,
                 password: req.body.password
             };
-            const data = await auth.login(this.dbConnection, creds);
-            res.send(data);
+            try {
+                const data = await this.authLogic.login(creds);
+                if (data) {
+                    res.status(204).send();
+                } else {
+                    res.status(400).send({message: 'Your username and password combo did not match.'});
+                }
+            } catch (e) {
+                res.status(500).send({message: 'Something went wrong.', err: e});
+            }
         });
 
         // creates a user
         router.post('/user/create', async (req, res) => {
             // creates user and logs them in
             const newUser: NewUser = {
-                username: req.body.username,
+                userName: req.body.username,
                 password: req.body.password,
                 email: req.body.email,
                 firstName: req.body.firstName,
                 lastName: req.body.lastName
             };
-            const data = await auth.signup(this.dbConnection, newUser);
+            const data = await this.authLogic.signup(newUser);
             console.log(data);
-            if (!data.result) {
-                console.error(data.err);
-                res.status(500).send({message: 'Something went wrong.', err: data.err});
-            }
-            res.send(data.result);
+            res.send(data);
         });
 
         this.app.use('/', router);

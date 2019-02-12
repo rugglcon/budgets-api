@@ -29,12 +29,12 @@ export class User {
 }
 
 export interface Credentials {
-    username: string,
+    userName: string,
     password: string
 }
 
 export interface NewUser {
-    username: string,
+    userName: string,
     password: string,
     email: string,
     firstName: string,
