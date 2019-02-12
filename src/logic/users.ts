@@ -6,6 +6,4 @@ export class UserLogic extends BaseLogic<User> {
     constructor(repo: Repository<User>) {
         super(repo);
     }
-
-
 }

@@ -30,13 +30,17 @@ export class Budget {
     /**
      * list of expenses in this budget
      */
-    @OneToMany(type => Expense, expense => expense.budgetId)
+    @OneToMany(type => Expense, expense => expense.budgetId, {
+        cascade: true
+    })
     expenses: Expense[];
 
     /**
      * if this budget has sub-budgets, they go here
      */
-    @OneToMany(type => Budget, budget => budget.parentBudget)
+    @OneToMany(type => Budget, budget => budget.parentBudget, {
+        cascade: true
+    })
     subBudget?: Budget[];
 
     /**

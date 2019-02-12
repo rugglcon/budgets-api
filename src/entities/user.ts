@@ -21,7 +21,9 @@ export class User {
     @Column()
     password: string;
 
-    @OneToMany(type => Budget, budget => budget.owner)
+    @OneToMany(type => Budget, budget => budget.owner, {
+        cascade: true
+    })
     budgets: Budget[];
 
     @Column()

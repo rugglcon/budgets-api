@@ -115,8 +115,11 @@ class App {
             // should validate user then create the budget
             // the body comes in as a NewBudget object
             const newBudget = (<NewBudget>req.body);
+            const budget = new Budget();
+            budget.owner = newBudget.owner;
+            budget.name = newBudget.name;
 
-            this.budgetLogic.create(newBudget as Budget)
+            this.budgetLogic.create(budget)
             .then(data => {
                 res.status(200).send(data);
             })
@@ -144,11 +147,10 @@ class App {
         // creates an expense
         router.post('/expense', (req, res) => {
             const newExpense = (<NewExpense>req.body);
-            const expense = {
-                title: newExpense.title,
-                cost: +(newExpense.cost),
-                budgetId: +(newExpense.budgetId)
-            } as Expense;
+            const expense = new Expense();
+            expense.title = newExpense.title;
+            expense.cost = +(newExpense.cost);
+            expense.budgetId = +(newExpense.budgetId);
             this.expenseLogic.create(expense)
             .then(reS => {
                 console.log(reS);
