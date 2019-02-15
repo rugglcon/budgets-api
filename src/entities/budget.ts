@@ -1,9 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from "typeorm";
 import { User } from "./user";
 
 export interface NewBudget {
     name: string;
-    owner: number;
+    ownerId: number;
 }
 
 @Entity()
@@ -17,44 +17,45 @@ export class Budget {
     /**
      * ID of the owner of this budget
      */
-    @ManyToOne(type => User, user => user.budgets)
-    @Column()
-    owner?: number;
+    @Column({
+        default: null
+    })
+    ownerId: number;
+
+    /**
+     * The User object for this budget
+     */
+    @ManyToOne(type => User, user => user.budgets, {
+        eager: true
+    })
+    @JoinColumn({name: 'ownerId'})
+    owner: User;
 
     /**
      * title the owner gives the budget
      */
-    @Column()
+    @Column({
+        default: null
+    })
     name: string;
 
     /**
      * list of expenses in this budget
      */
-    @OneToMany(type => Expense, expense => expense.budgetId, {
-        cascade: true
+    @OneToMany(type => Expense, expense => expense.budget, {
+        cascade: true, eager: true
     })
     expenses: Expense[];
 
     /**
-     * if this budget has sub-budgets, they go here
-     */
-    @OneToMany(type => Budget, budget => budget.parentBudget, {
-        cascade: true
-    })
-    subBudget?: Budget[];
-
-    /**
      * "budget" of the budget
      */
-    @Column()
+    @Column({
+        default: 0,
+        precision: 2,
+        type: 'decimal'
+    })
     total: number;
-
-    /**
-     * parent of this budget
-     */
-    @ManyToOne(type => Budget, budget => budget.subBudget)
-    @Column()
-    parentBudget?: number;
 }
 
 export interface NewExpense {
@@ -71,13 +72,22 @@ export class Expense {
     /**
      * ID of the budget this Expense belongs to
      */
-    @ManyToOne(type => Budget, budget => budget.expenses)
     @Column()
     budgetId: number;
 
-    @Column()
+    @ManyToOne(type => Budget, budget => budget.expenses)
+    @JoinColumn({name: 'budgetId'})
+    budget: Budget;
+
+    @Column({
+        default: null
+    })
     title: string;
 
-    @Column()
+    @Column({
+        default: 0,
+        type: 'decimal',
+        precision: 2
+    })
     cost: number;
 }

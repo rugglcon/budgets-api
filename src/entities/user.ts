@@ -6,19 +6,29 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({
+        default: null
+    })
     firstName: string;
 
-    @Column()
+    @Column({
+        default: null
+    })
     lastName: string;
 
-    @Column()
+    @Column({
+        default: null
+    })
     userName: string;
 
-    @Column()
+    @Column({
+        default: null
+    })
     email: string;
 
-    @Column()
+    @Column({
+        default: null
+    })
     password: string;
 
     @OneToMany(type => Budget, budget => budget.owner, {
@@ -26,8 +36,19 @@ export class User {
     })
     budgets: Budget[];
 
-    @Column()
+    @Column({
+        default: false
+    })
     loggedIn: boolean;
+
+    /**
+     * Will be defined when the user is logged in,
+     * otherwise will be set to null
+     */
+    @Column({
+        default: null
+    })
+    sessionId?: string;
 }
 
 export interface Credentials {
@@ -41,13 +62,4 @@ export interface NewUser {
     email: string,
     firstName: string,
     lastName: string
-}
-
-@Entity()
-export class Token {
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column()
-    token: string;
 }

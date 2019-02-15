@@ -11,17 +11,6 @@ CREATE TABLE `Users` (
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
-CREATE TABLE `Tokens` (
-  `Id` int(11) NOT NULL AUTO_INCREMENT,
-  `UserID` int(11) NOT NULL,
-  `Token` varchar(64) NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `fk_Tokens_1_idx` (`UserID`),
-  CONSTRAINT `fk_Tokens_UserID_Users_Id` FOREIGN KEY (`UserID`) REFERENCES `Users` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
 CREATE TABLE `Budgets` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `OwnerId` int(11) NOT NULL,

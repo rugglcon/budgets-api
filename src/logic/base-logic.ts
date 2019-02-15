@@ -25,8 +25,14 @@ export class BaseLogic<T> {
      * @param id id of the entity to retrieve
      */
     async getById(id: number): Promise<T> {
-        const item = await this._repo
+        let item = null;
+        try {
+            item = await this._repo
                                 .findOne(id);
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
         console.log('item by id:', item);
         return item;
     }
@@ -35,7 +41,14 @@ export class BaseLogic<T> {
      * Retrieves all entries of `T` in the database
      */
     async getAll(): Promise<T[]> {
-        return this._repo.find();
+        let items = null;
+        try {
+            items = await this._repo.find();
+        } catch(e) {
+            console.log(e);
+            throw e;
+        }
+        return items;
     }
 
     /**
@@ -43,7 +56,14 @@ export class BaseLogic<T> {
      * @param item item to be updated
      */
     async update(item: T): Promise<T> {
-        return await this._repo.save(item);
+        let newItem = null;
+        try {
+            newItem = await this._repo.save(item);
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
+        return newItem;
     }
 
     /**
@@ -51,15 +71,36 @@ export class BaseLogic<T> {
      * @param item base entity to be created
      */
     async create(item: T): Promise<T> {
-        const created = await this._repo.create(item);
-        return await this._repo.save(item);
+        let created = null;
+        try {
+            created = await this._repo.create(item);
+            await this._repo.save(created);
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
+        return created;
     }
 
     async get(options: FindOneOptions): Promise<T> {
-        return await this._repo.findOne(options);
+        let item = null;
+        try {
+            item = await this._repo.findOne(options);
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
+        return item;
     }
 
     async getMany(options: FindManyOptions): Promise<T[]> {
-        return await this._repo.find(options);
+        let items = null;
+        try {
+            items = await this._repo.find(options);
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
+        return items;
     }
 }

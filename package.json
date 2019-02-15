@@ -7,7 +7,10 @@
     "build": "tsc",
     "dev": "nodemon --exec ./node_modules/.bin/ts-node -- ./src/server.ts",
     "start": "npm run dev",
-    "test": "jest"
+    "test": "jest",
+    "generate-migration": "typeorm migration:generate",
+    "run-migration": "ts-node ./node_modules/typeorm/cli.js migration:run",
+    "revert-migration": "ts-node ./node_modules/typeorm/cli.js migration:revert"
   },
   "author": "Connor Ruggles",
   "license": "GPL-3.0",
@@ -16,6 +19,7 @@
     "body-parser": "^1.18.3",
     "concurrently": "^3.5.1",
     "express": "^4.16.3",
+    "express-session": "^1.15.6",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.13",
     "typescript": "^2.9.2"
@@ -23,6 +27,7 @@
   "devDependencies": {
     "@types/bcrypt": "^2.0.0",
     "@types/express": "^4.16.0",
+    "@types/express-session": "^1.15.12",
     "@types/mysql": "^2.15.5",
     "@types/node": "^10.12.24",
     "jest": "^23.1.0",
