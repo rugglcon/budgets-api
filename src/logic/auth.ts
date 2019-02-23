@@ -2,13 +2,16 @@ import { Credentials, NewUser } from '../entities/user';
 import * as bcrypt from 'bcrypt';
 import { User } from '../entities/user';
 import { UserLogic } from './users';
+import { Logger } from 'winston';
 
 export class AuthLogic {
     static PASSWORD_SALT_ROUNDS = 10;
     _userLogic: UserLogic;
+    log: Logger;
 
-    constructor(userLogic: UserLogic) {
+    constructor(userLogic: UserLogic, log: Logger) {
         this._userLogic = userLogic;
+        this.log = log;
     }
 
     /**

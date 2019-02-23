@@ -1,18 +1,18 @@
 import { Budget, NewBudget, Expense, NewExpense } from './entities/budget';
-import { Query } from './util/query';
 import * as auth from './logic/auth';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as budgets from './logic/budgets';
 import * as users from './logic/users';
 import * as expenses from './logic/expenses';
-import { Credentials, NewUser, User } from './entities/user';
+import { Credentials, NewUser } from './entities/user';
 import * as typeorm from 'typeorm';
+import * as winston from 'winston';
 import * as session from 'express-session';
 
 class App {
     public app: express.Application;
-    query: Query;
+    log: winston.Logger;
     dbConnection: typeorm.Connection;
     budgetLogic: budgets.BudgetLogic;
     expenseLogic: expenses.ExpenseLogic;
@@ -33,7 +33,7 @@ class App {
             saveUninitialized: true
         }));
         // this.app.use(bodyParser.urlencoded({extended: false}));
-        this.app.use((req, res, next) => {
+        this.app.use((_req, res, next) => {
             res.header('Access-Control-Allow-Origin', '*');
             res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
             next();
@@ -44,7 +44,7 @@ class App {
         const router = express.Router();
 
         // validates that id is a number
-        router.param('id', (req, res, next, id) => {
+        router.param('id', (_req, res, next, id) => {
             let _id = Number(id);
             if (!isNaN(_id)) {
                 next();
@@ -60,6 +60,7 @@ class App {
         // gets all budgets
         router.get('/budgets', async (req, res) => {
             // should validate user then return that user's budgets
+            this.log.info(`hostname: ${req.hostname}`);
             try {
                 const user = await this.authLogic.authenticate(req.session.id);
                 if (user == null) {
@@ -68,10 +69,10 @@ class App {
                     return;
                 }
                 const data = await this.budgetLogic.getMany({where: {ownerId: user.id}});
-                console.log('all budgets', data);
+                this.log.info('all budgets', data);
                 res.status(200).send(data);
             } catch (err) {
-                console.error(err);
+                this.log.error(err);
                 res.status(500).send({message: 'Something went wrong.', err: err});
             }
         });
@@ -117,7 +118,7 @@ class App {
                     return;
                 }
                 const data = await this.budgetLogic.update(budg);
-                console.log(data);
+                this.log.info(data);
                 res.status(200).send(data);
             } catch (err) {
                 res.status(500).send({message: 'Something went wrong.', err: err});
@@ -163,7 +164,7 @@ class App {
                     return;
                 }
                 const data = await this.budgetLogic.delete(budget.id);
-                console.log(data);
+                this.log.info(`delete successful: ${data}`);
                 res.send(data);
             } catch (err) {
                 res.status(500).send({message: 'Something went wrong.', err: err});
@@ -188,7 +189,7 @@ class App {
                 expense.cost = +(newExpense.cost);
                 expense.budgetId = +(newExpense.budgetId);
                 const reS = await this.expenseLogic.create(expense);
-                console.log(reS);
+                this.log.info(reS);
                 res.status(200).send(reS);
             } catch (err) {
                 res.status(500).send({message: 'Something went wrong.', err: err});
@@ -242,9 +243,16 @@ class App {
         router.post('/user/logout', async (req, res) => {
             try {
                 await this.authLogic.logout(req.session.id);
-                res.status(204).send();
+                req.session.destroy(err => {
+                    if (err) {
+                        this.log.error(err);
+                        res.status(400).send({message: 'Something went wrong.', err: err});
+                    } else {
+                        res.status(204).send();
+                    }
+                });
             } catch (e) {
-                console.error(e);
+                this.log.error(e);
                 res.status(500).send({message: 'Something went wrong.', err: e});
             }
         });
@@ -260,7 +268,7 @@ class App {
                 lastName: req.body.lastName
             };
             const data = await this.authLogic.signup(newUser);
-            console.log(data);
+            this.log.info(data);
             res.send(data);
         });
 
