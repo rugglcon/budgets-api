@@ -1,4 +1,4 @@
-import { Expense } from '../entities/budget';
+import { Expense } from '../entities/expense';
 import { Repository } from 'typeorm';
 import { BaseLogic } from './base-logic';
 import { Logger } from 'winston';

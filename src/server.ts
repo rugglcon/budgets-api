@@ -4,12 +4,15 @@ import * as fs from 'fs';
 import { homedir } from 'os';
 import { createConnection } from 'typeorm';
 import { BudgetLogic } from './logic/budgets';
-import { Budget, Expense } from './entities/budget';
+import { Budget } from './entities/budget';
 import { ExpenseLogic } from './logic/expenses';
 import { UserLogic } from './logic/users';
 import { User } from './entities/user';
 import { AuthLogic } from './logic/auth';
 import * as winston from 'winston';
+import { Expense } from './entities/expense';
+import { TokenLogic } from './logic/tokens';
+import { Token } from './entities/token';
 
 const port = 4000;
 const log = winston.createLogger({
@@ -25,29 +28,14 @@ const configs = JSON.parse(
     ).toString()
 );
 
-createConnection({
-    host: 'localhost',
-    database: 'budget_tracker',
-    username: configs.username,
-    password: configs.password,
-    type: 'mysql',
-    port: 3306,
-    entities: [
-        Budget,
-        Expense,
-        User
-    ],
-    synchronize: true,
-    migrations: [
-        './migrations/*.ts'
-    ]
-}).then(async conn => {
+createConnection().then(async conn => {
     app.dbConnection = conn;
     app.log = log;
     app.budgetLogic = new BudgetLogic(conn.getRepository<Budget>(Budget), log);
     app.expenseLogic = new ExpenseLogic(conn.getRepository<Expense>(Expense), log);
     app.userLogic = new UserLogic(conn.getRepository<User>(User), log);
-    app.authLogic = new AuthLogic(app.userLogic, log);
+    app.tokenLogic = new TokenLogic(conn.getRepository<Token>(Token), log);
+    app.authLogic = new AuthLogic(app.userLogic, app.tokenLogic, log);
     app.app.listen(port, () => {
         log.info(`listening on port ${port}`);
     });

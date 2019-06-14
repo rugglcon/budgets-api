@@ -1,6 +1,6 @@
 import * as mysql from 'mysql';
 import { MysqlParams } from '../entities/mysql';
-import { Result } from '../entities/result';
+import { Result } from './result';
 
 export class Query {
     connection: mysql.Pool;

@@ -1,14 +1,15 @@
-import { Budget, NewBudget, Expense, NewExpense } from './entities/budget';
+import { Budget, NewBudget, NewExpense } from './entities/budget';
 import * as auth from './logic/auth';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as budgets from './logic/budgets';
 import * as users from './logic/users';
 import * as expenses from './logic/expenses';
-import { Credentials, NewUser } from './entities/user';
+import * as tokens from './logic/tokens';
+import { Credentials, NewUser, LoginSuccess } from './entities/user';
 import * as typeorm from 'typeorm';
 import * as winston from 'winston';
-import * as session from 'express-session';
+import { Expense } from './entities/expense';
 
 class App {
     public app: express.Application;
@@ -18,6 +19,7 @@ class App {
     expenseLogic: expenses.ExpenseLogic;
     userLogic: users.UserLogic;
     authLogic: auth.AuthLogic;
+    tokenLogic: tokens.TokenLogic;
 
     constructor() {
         this.app = express();
@@ -26,18 +28,13 @@ class App {
     }
 
     config(): void {
-        this.app.use(bodyParser.json());
-        this.app.use(session({
-            secret: 'secret key',
-            resave: false,
-            saveUninitialized: true
-        }));
-        // this.app.use(bodyParser.urlencoded({extended: false}));
         this.app.use((_req, res, next) => {
             res.header('Access-Control-Allow-Origin', '*');
             res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
             next();
         });
+        this.app.use(bodyParser.json());
+        // this.app.use(bodyParser.urlencoded({extended: false}));
     }
 
     routes(): void {
@@ -45,7 +42,7 @@ class App {
 
         // validates that id is a number
         router.param('id', (_req, res, next, id) => {
-            let _id = Number(id);
+            const _id = Number(id);
             if (!isNaN(_id)) {
                 next();
             } else {
@@ -62,6 +59,7 @@ class App {
             // should validate user then return that user's budgets
             this.log.info(`hostname: ${req.hostname}`);
             try {
+                this.log.info(`current session id: ${req.session.id}`);
                 const user = await this.authLogic.authenticate(req.session.id);
                 if (user == null) {
                     // not authorized/logged in
@@ -229,28 +227,41 @@ class App {
                 password: req.body.password
             };
             try {
-                const data = await this.authLogic.login(creds, req.session.id);
-                if (data) {
-                    res.status(204).send();
+                const data = await this.authLogic.login(creds);
+                console.log('yoooooo', data);
+                if (data != null) {
+                    res.status(200).send(data);
                 } else {
-                    res.status(400).send({message: 'Your username and password combo did not match.'});
+                    res.status(401).send({message: 'Your username and password combo did not match.'});
                 }
             } catch (e) {
                 res.status(500).send({message: 'Something went wrong.', err: e});
             }
         });
 
+        // logs a user out
         router.post('/user/logout', async (req, res) => {
             try {
-                await this.authLogic.logout(req.session.id);
-                req.session.destroy(err => {
-                    if (err) {
-                        this.log.error(err);
-                        res.status(400).send({message: 'Something went wrong.', err: err});
-                    } else {
-                        res.status(204).send();
+                const data = req.body as LoginSuccess;
+                const token = await this.tokenLogic.get({where: {tokenString: data.token}});
+                if (token == null) {
+                    res.status(400).send({message: 'The given token does not exist.'});
+                }
+
+                const user = await this.userLogic.get({
+                    where: {
+                        tokenId: token.id,
+                        id: data.id,
+                        email: data.email,
+                        userName: data.userName
                     }
                 });
+                if (user == null) {
+                    res.status(400).send({message: 'User does not exist.'});
+                }
+
+                await this.authLogic.logout(user);
+                res.status(204).send();
             } catch (e) {
                 this.log.error(e);
                 res.status(500).send({message: 'Something went wrong.', err: e});
@@ -269,7 +280,7 @@ class App {
             };
             const data = await this.authLogic.signup(newUser);
             this.log.info(data);
-            res.send(data);
+            res.status(200).send(data);
         });
 
         this.app.use('/', router);

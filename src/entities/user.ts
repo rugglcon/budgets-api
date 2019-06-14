@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, OneToMany, Column } from "typeorm";
-import { Budget } from "./budget";
+import { Entity, PrimaryGeneratedColumn, OneToMany, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Budget } from './budget';
+import { Token } from './token';
 
 @Entity()
 export class User {
@@ -48,18 +49,31 @@ export class User {
     @Column({
         default: null
     })
-    sessionId?: string;
+    tokenId?: number;
+
+    @OneToOne(type => Token, token => token.id, {
+        cascade: true
+    })
+    @JoinColumn({name: 'tokenId'})
+    token: Token;
 }
 
 export interface Credentials {
-    userName: string,
-    password: string
+    userName: string;
+    password: string;
 }
 
 export interface NewUser {
-    userName: string,
-    password: string,
-    email: string,
-    firstName: string,
-    lastName: string
+    userName: string;
+    password: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+}
+
+export interface LoginSuccess {
+    token: string;
+    id: number;
+    userName: string;
+    email: string;
 }

@@ -1,5 +1,4 @@
-import { Budget, NewBudget, Expense } from '../entities/budget';
-import * as auth from './auth';
+import { Budget } from '../entities/budget';
 import { Repository } from 'typeorm';
 import { BaseLogic } from './base-logic';
 import { Logger } from 'winston';

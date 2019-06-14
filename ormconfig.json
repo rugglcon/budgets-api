@@ -1,13 +1,20 @@
 {
-    "synchronize": true,
+    "synchronize": false,
     "entities": [
-        "src/entities/*.ts"
+        "dist/entities/*.js"
     ],
     "migrations": [
-        "src/migrations/*.ts"
+        "dist/migrations/*.js"
     ],
     "cli": {
         "entitiesDir": "src/entities",
         "migrationsDir": "src/migrations"
-    }
+    },
+    "type": "mysql",
+    "host": "localhost",
+    "username": "budget_tracker",
+    "password": "ju8^z4ZDUT!Z",
+    "database": "budget_tracker",
+    "port": 3306,
+    "migrationsRun": true
 }

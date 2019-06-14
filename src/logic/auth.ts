@@ -1,16 +1,20 @@
-import { Credentials, NewUser } from '../entities/user';
+import { Credentials, NewUser, LoginSuccess } from '../entities/user';
 import * as bcrypt from 'bcrypt';
 import { User } from '../entities/user';
 import { UserLogic } from './users';
 import { Logger } from 'winston';
+import { TokenLogic } from './tokens';
+import { Token } from '../entities/token';
 
 export class AuthLogic {
     static PASSWORD_SALT_ROUNDS = 10;
     _userLogic: UserLogic;
     log: Logger;
+    _tokenLogic: TokenLogic;
 
-    constructor(userLogic: UserLogic, log: Logger) {
+    constructor(userLogic: UserLogic, tokenLogic: TokenLogic, log: Logger) {
         this._userLogic = userLogic;
+        this._tokenLogic = tokenLogic;
         this.log = log;
     }
 
@@ -19,25 +23,33 @@ export class AuthLogic {
      * if you get logged in, otherwise false
      * @param creds credentials being used to log in
      */
-    async login(cred: Credentials, sessionId: string): Promise<boolean> {
+    async login(cred: Credentials): Promise<LoginSuccess> {
+        console.log('got creds', cred);
         const user = await this._userLogic.get({where: {userName: cred.userName}});
+        console.log('got user', user);
         if (user == null) {
-            return false;
+            return null;
         }
 
         if (!(await bcrypt.compare(cred.password, user.password))) {
-            return false;
+            return null;
         }
 
         user.loggedIn = true;
-        user.sessionId = sessionId;
-        return await this._userLogic.update(user) != null;
+        const token = await this._tokenLogic.create(new Token());
+        user.tokenId = token.id;
+        const loggedIn = await this._userLogic.update(user) != null;
+        return (loggedIn ? {
+            token: token.tokenString,
+            id: user.id,
+            userName: user.userName,
+            email: user.email
+        } : null);
     }
 
-    async logout(sessionId: string): Promise<void> {
-        const user = await this._userLogic.get({where: {sessionId: sessionId}});
+    async logout(user: User): Promise<void> {
         user.loggedIn = false;
-        user.sessionId = null;
+        user.token = null;
         await this._userLogic.update(user);
     }
 
@@ -46,24 +58,26 @@ export class AuthLogic {
      * username doesn't already exist
      * @param creds credentials to use to create the new user
      */
-    async signup(creds: NewUser): Promise<User> {
+    async signup(creds: NewUser): Promise<LoginSuccess> {
         const existingUser = await this._userLogic.get({where: {userName: creds.userName}});
         if (existingUser != null) {
             return null;
         }
 
+        const password = creds.password;
         creds.password = await bcrypt.hash(creds.password, AuthLogic.PASSWORD_SALT_ROUNDS);
-
-        return await this._userLogic.create(creds as User);
+        const newUser = await this._userLogic.create(creds as User);
+        return await this.login({userName: newUser.userName, password});
     }
 
-    async authenticate(sessionId: string): Promise<User> {
+    async authenticate(token: string): Promise<User> {
         const user = await this._userLogic.get({
             where: {
-                sessionId: sessionId,
+                token: token,
                 loggedIn: true
             }
         });
+        console.log('authenticated user', user);
         if (user != null) {
             return user;
         }
