@@ -6,7 +6,6 @@ import * as users from './logic/users';
 import * as expenses from './logic/expenses';
 import { User } from './entities/user';
 import * as typeorm from 'typeorm';
-import * as winston from 'winston';
 import * as passport from 'passport';
 import * as passportLocal from 'passport-local';
 import * as passportJwt from 'passport-jwt';
@@ -14,6 +13,7 @@ import * as cors from 'cors';
 import { userRoutes } from './routes/user.routes';
 import { budgetRoutes } from './routes/budget.routes';
 import { expenseRoutes } from './routes/expense.routes';
+import { logger } from 'util/logger';
 
 class App {
     public app: express.Application;
@@ -101,6 +101,7 @@ class App {
         this.app.use('/api', passport.authenticate('jwt', {
             session: true
         }), budgetRoutes(cors, this.budgetLogic));
+        logger.info('instantiated budget routes');
 
         /**
          * EXPENSE ROUTES
@@ -108,11 +109,13 @@ class App {
         this.app.use('/api', passport.authenticate('jwt', {
             session: true
         }), expenseRoutes(cors, this.budgetLogic, this.expenseLogic));
+        logger.info('instantiated expense routes');
 
         /**
          * USER ROUTES
          */
         this.app.use('/api', userRoutes(cors, passport, this.userLogic, this.authLogic));
+        logger.info('instantiated user routes');
     }
 }
 export default new App();
