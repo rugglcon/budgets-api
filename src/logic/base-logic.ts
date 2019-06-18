@@ -1,11 +1,10 @@
 import { Repository, FindManyOptions, FindOneOptions } from 'typeorm';
-import { Logger } from 'winston';
+import { logger } from '../util/logger';
 
 export class BaseLogic<T> {
     protected _repo: Repository<T>;
-    protected log: Logger;
 
-    constructor(repo: Repository<T>, log: Logger) { this._repo = repo; this.log = log; }
+    constructor(repo: Repository<T>) { this._repo = repo; }
 
     /**
      * Deletes the entity with the given id in the database
@@ -16,7 +15,7 @@ export class BaseLogic<T> {
         try {
             await this._repo.remove(item);
         } catch (e) {
-            this.log.error('error deleting:', e);
+            logger.error('error deleting:', e);
             return false;
         }
         return true;
@@ -32,10 +31,11 @@ export class BaseLogic<T> {
             item = await this._repo
                                 .findOne(id);
         } catch (e) {
-            this.log.error(e);
+            logger.error(e);
             throw e;
         }
-        this.log.info(`item by id: ${item}`);
+        logger.info(`got item with id: ${id}`);
+        console.log('got item by id', item);
         return item;
     }
 
@@ -47,7 +47,7 @@ export class BaseLogic<T> {
         try {
             items = await this._repo.find();
         } catch(e) {
-            this.log.info(e);
+            logger.info(e);
             throw e;
         }
         return items;
@@ -62,7 +62,7 @@ export class BaseLogic<T> {
         try {
             newItem = await this._repo.save(item);
         } catch (e) {
-            this.log.error(e);
+            logger.error(e);
             throw e;
         }
         return newItem;
@@ -78,7 +78,7 @@ export class BaseLogic<T> {
             created = await this._repo.create(item);
             await this._repo.save(created);
         } catch (e) {
-            this.log.error(e);
+            logger.error(e);
             throw e;
         }
         return created;
@@ -89,7 +89,7 @@ export class BaseLogic<T> {
         try {
             item = await this._repo.findOne(options);
         } catch (e) {
-            this.log.error(e);
+            logger.error(e);
             throw e;
         }
         return item;
@@ -100,7 +100,7 @@ export class BaseLogic<T> {
         try {
             items = await this._repo.find(options);
         } catch (e) {
-            this.log.error(e);
+            logger.error(e);
             throw e;
         }
         return items;

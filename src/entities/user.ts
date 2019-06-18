@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, OneToMany, Column, OneToOne, JoinColumn } from 'typeorm';
 import { Budget } from './budget';
-import { Token } from './token';
 
 @Entity()
 export class User {
@@ -41,21 +40,6 @@ export class User {
         default: false
     })
     loggedIn: boolean;
-
-    /**
-     * Will be defined when the user is logged in,
-     * otherwise will be set to null
-     */
-    @Column({
-        default: null
-    })
-    tokenId?: number;
-
-    @OneToOne(type => Token, token => token.id, {
-        cascade: true
-    })
-    @JoinColumn({name: 'tokenId'})
-    token: Token;
 }
 
 export interface Credentials {

@@ -1,21 +1,14 @@
-import { Credentials, NewUser, LoginSuccess } from '../entities/user';
+import { Credentials, NewUser } from '../entities/user';
 import * as bcrypt from 'bcrypt';
 import { User } from '../entities/user';
 import { UserLogic } from './users';
-import { Logger } from 'winston';
-import { TokenLogic } from './tokens';
-import { Token } from '../entities/token';
 
 export class AuthLogic {
     static PASSWORD_SALT_ROUNDS = 10;
     _userLogic: UserLogic;
-    log: Logger;
-    _tokenLogic: TokenLogic;
 
-    constructor(userLogic: UserLogic, tokenLogic: TokenLogic, log: Logger) {
+    constructor(userLogic: UserLogic) {
         this._userLogic = userLogic;
-        this._tokenLogic = tokenLogic;
-        this.log = log;
     }
 
     /**
@@ -23,10 +16,9 @@ export class AuthLogic {
      * if you get logged in, otherwise false
      * @param creds credentials being used to log in
      */
-    async login(cred: Credentials): Promise<LoginSuccess> {
+    async login(cred: Credentials): Promise<User> {
         console.log('got creds', cred);
         const user = await this._userLogic.get({where: {userName: cred.userName}});
-        console.log('got user', user);
         if (user == null) {
             return null;
         }
@@ -36,20 +28,14 @@ export class AuthLogic {
         }
 
         user.loggedIn = true;
-        const token = await this._tokenLogic.create(new Token());
-        user.tokenId = token.id;
-        const loggedIn = await this._userLogic.update(user) != null;
-        return (loggedIn ? {
-            token: token.tokenString,
-            id: user.id,
-            userName: user.userName,
-            email: user.email
-        } : null);
+        // const token = await this._tokenLogic.create(new Token());
+        // user.tokenId = token.id;
+        return await this._userLogic.update(user);
     }
 
     async logout(user: User): Promise<void> {
         user.loggedIn = false;
-        user.token = null;
+        // user.token = null;
         await this._userLogic.update(user);
     }
 
@@ -58,7 +44,7 @@ export class AuthLogic {
      * username doesn't already exist
      * @param creds credentials to use to create the new user
      */
-    async signup(creds: NewUser): Promise<LoginSuccess> {
+    async signup(creds: NewUser): Promise<User> {
         const existingUser = await this._userLogic.get({where: {userName: creds.userName}});
         if (existingUser != null) {
             return null;

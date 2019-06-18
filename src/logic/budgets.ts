@@ -4,7 +4,7 @@ import { BaseLogic } from './base-logic';
 import { Logger } from 'winston';
 
 export class BudgetLogic extends BaseLogic<Budget> {
-    constructor(repo: Repository<Budget>, log: Logger) {
-        super(repo, log);
+    constructor(repo: Repository<Budget>) {
+        super(repo);
     }
 }
