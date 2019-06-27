@@ -1,5 +1,5 @@
 import * as mysql from 'mysql';
-import { MysqlParams } from '../entities/mysql';
+import { MysqlParams } from './mysql';
 import { Result } from './result';
 
 export class Query {
@@ -17,12 +17,12 @@ export class Query {
                         result: null
                     });
                 }
-                conn.query(params.sqlString, params.values, (err, res: T[], fields) => {
+                conn.query(params.sqlString, params.values, (_err, res: T[], fields) => {
                     conn.release();
-                    if (err) {
-                        console.log('error:', err);
+                    if (_err) {
+                        console.log('error:', _err);
                         resolve({
-                            err: err,
+                            err: _err,
                             result: null
                         });
                     }

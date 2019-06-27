@@ -2,6 +2,7 @@ import { RequestHandler, Router } from 'express';
 import { logger } from '../util/logger';
 import { BudgetLogic } from '../logic/budgets';
 import { Budget, NewBudget } from '../entities/budget';
+import { User } from 'entities/user';
 
 export const budgetRoutes = (cors: () => RequestHandler, budgetLogic: BudgetLogic): Router => {
     const budgetsRouter = Router();
@@ -81,7 +82,8 @@ export const budgetRoutes = (cors: () => RequestHandler, budgetLogic: BudgetLogi
                 return;
             }
             const data = await budgetLogic.update(budg);
-            logger.info(data);
+            console.log('updated budget', data);
+            logger.info(`user with id ${user.id} updated budget with id ${data.id}`);
             res.status(200).send(data);
         } catch (err) {
             res.status(500).send({message: 'Something went wrong.', err: err});
@@ -93,21 +95,35 @@ export const budgetRoutes = (cors: () => RequestHandler, budgetLogic: BudgetLogi
         // should validate user then create the budget
         // the body comes in as a NewBudget object
         try {
-            const user = req.user;
+            const user = req.user as User;
             if (user == null) {
                 // not authorized/logged in
-                res.status(401).send();
-                return;
+                return res.status(401).send();
             }
             const newBudget = (<NewBudget>req.body);
+            logger.info(`user with email: [${user.email}] attempting
+                to create budget with name: [${newBudget.name}] and total: [${newBudget.total}]`);
+
+            if (user.id !== newBudget.ownerId) {
+                logger.warn(`user with id: [${user.id}] tried to create a budget with user id: [${newBudget.ownerId}]`);
+                return res.status(400).send({message: 'The budget\'s owner ID does not match the ID of the logged in user.'});
+            }
+
             const budget = new Budget();
             budget.ownerId = newBudget.ownerId;
             budget.name = newBudget.name;
+            budget.total = newBudget.total;
 
             const data = await budgetLogic.create(budget);
-            res.status(200).send(data);
+            if (data) {
+                logger.info(`budget created with id: [${data.id}]`);
+                return res.status(200).send(data);
+            } else {
+                logger.error('something went wrong trying to create the budget');
+                return res.status(500).send({message: 'Something went wrong while creating the budget. Please try again.'});
+            }
         } catch (err) {
-            res.status(500).send({message: 'Something went wrong.', err: err});
+            return res.status(500).send({message: 'Something went wrong.', err: err});
         }
     });
 

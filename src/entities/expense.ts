@@ -1,6 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Budget } from './budget';
 
+export interface NewExpense {
+    title: string;
+    cost: number;
+    budgetId: number;
+}
+
 @Entity()
 export class Expense {
     @PrimaryGeneratedColumn()
@@ -24,7 +30,8 @@ export class Expense {
     @Column({
         default: 0,
         type: 'decimal',
-        precision: 2
+        precision: 15,
+        scale: 2
     })
     cost: number;
 }

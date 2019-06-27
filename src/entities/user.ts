@@ -32,7 +32,8 @@ export class User {
     password: string;
 
     @OneToMany(type => Budget, budget => budget.owner, {
-        cascade: true
+        cascade: true,
+        eager: true
     })
     budgets: Budget[];
 

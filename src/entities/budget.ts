@@ -5,6 +5,7 @@ import { Expense } from './expense';
 export interface NewBudget {
     name: string;
     ownerId: number;
+    total: number;
 }
 
 @Entity()
@@ -27,7 +28,7 @@ export class Budget {
      * The User object for this budget
      */
     @ManyToOne(type => User, user => user.budgets, {
-        eager: true
+        eager: false
     })
     @JoinColumn({name: 'ownerId'})
     owner: User;
@@ -53,14 +54,9 @@ export class Budget {
      */
     @Column({
         default: 0,
-        precision: 2,
-        type: 'decimal'
+        precision: 15,
+        type: 'decimal',
+        scale: 2
     })
     total: number;
-}
-
-export interface NewExpense {
-    title: string;
-    cost: number;
-    budgetId: number;
 }

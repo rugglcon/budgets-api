@@ -13,7 +13,7 @@ import * as cors from 'cors';
 import { userRoutes } from './routes/user.routes';
 import { budgetRoutes } from './routes/budget.routes';
 import { expenseRoutes } from './routes/expense.routes';
-import { logger } from 'util/logger';
+import { logger } from './util/logger';
 
 class App {
     public app: express.Application;

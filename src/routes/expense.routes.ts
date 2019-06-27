@@ -1,6 +1,6 @@
 import { Router, RequestHandler } from 'express';
 import { BudgetLogic } from '../logic/budgets';
-import { NewExpense } from '../entities/budget';
+import { NewExpense } from '../entities/expense';
 import { Expense } from '../entities/expense';
 import { ExpenseLogic } from '../logic/expenses';
 import { logger } from '../util/logger';
