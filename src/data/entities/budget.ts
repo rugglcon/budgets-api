@@ -8,6 +8,16 @@ export interface NewBudget {
     total: number;
 }
 
+/**
+ * Frontend Budget model
+ */
+export interface SimpleBudget {
+    id: number;
+    name: string;
+    total: number;
+    ownerId: number;
+}
+
 @Entity()
 export class Budget {
     /**

@@ -4,7 +4,7 @@ import * as bodyParser from 'body-parser';
 import * as budgets from './logic/budgets';
 import * as users from './logic/users';
 import * as expenses from './logic/expenses';
-import { User } from './entities/user';
+import { User } from './data/entities/user';
 import * as typeorm from 'typeorm';
 import * as passport from 'passport';
 import * as passportLocal from 'passport-local';
@@ -98,15 +98,15 @@ class App {
         /**
          * BUDGET ROUTES
          */
-        this.app.use('/api', passport.authenticate('jwt', {
+        this.app.use('/api/budgets', passport.authenticate('jwt', {
             session: true
-        }), budgetRoutes(cors, this.budgetLogic));
+        }), budgetRoutes(cors, this.budgetLogic, this.expenseLogic));
         logger.info('instantiated budget routes');
 
         /**
          * EXPENSE ROUTES
          */
-        this.app.use('/api', passport.authenticate('jwt', {
+        this.app.use('/api/expense', passport.authenticate('jwt', {
             session: true
         }), expenseRoutes(cors, this.budgetLogic, this.expenseLogic));
         logger.info('instantiated expense routes');
@@ -114,7 +114,7 @@ class App {
         /**
          * USER ROUTES
          */
-        this.app.use('/api', userRoutes(cors, passport, this.userLogic, this.authLogic));
+        this.app.use('/api/user', userRoutes(cors, passport, this.userLogic, this.authLogic));
         logger.info('instantiated user routes');
     }
 }

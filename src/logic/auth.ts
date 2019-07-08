@@ -1,6 +1,6 @@
-import { Credentials, NewUser } from '../entities/user';
+import { Credentials, NewUser } from '../data/entities/user';
 import * as bcrypt from 'bcrypt';
-import { User } from '../entities/user';
+import { User } from '../data/entities/user';
 import { UserLogic } from './users';
 
 export class AuthLogic {

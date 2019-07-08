@@ -1,9 +1,10 @@
 import { Router, RequestHandler } from 'express';
 import { BudgetLogic } from '../logic/budgets';
-import { NewExpense } from '../entities/expense';
-import { Expense } from '../entities/expense';
+import { NewExpense, SimpleExpense } from '../data/entities/expense';
+import { Expense } from '../data/entities/expense';
 import { ExpenseLogic } from '../logic/expenses';
 import { logger } from '../util/logger';
+import { User } from 'data/entities/user';
 
 export const expenseRoutes = (cors: () => RequestHandler,
                             budgetLogic: BudgetLogic,
@@ -23,9 +24,9 @@ export const expenseRoutes = (cors: () => RequestHandler,
     expensesRouter.options('*', cors());
 
     // creates an expense
-    expensesRouter.post('/expense', async (req, res) => {
+    expensesRouter.post('/', async (req, res) => {
         try {
-            const user = req.user;
+            const user = req.user as User;
             if (user == null) {
                 // not authorized/logged in
                 res.status(401).send();
@@ -37,14 +38,43 @@ export const expenseRoutes = (cors: () => RequestHandler,
             expense.cost = +(newExpense.cost);
             expense.budgetId = +(newExpense.budgetId);
             const reS = await expenseLogic.create(expense);
-            logger.info(reS);
-            res.status(200).send(reS);
+            logger.info(`user with id [${user.id}] created expense [${reS.id}] under budget [${expense.budgetId}]`);
+            res.status(200).send({
+                id: reS.id, budgetId: reS.budgetId, cost: Number(reS.cost), title: reS.title
+            } as SimpleExpense);
         } catch (err) {
             res.status(500).send({message: 'Something went wrong.', err: err});
         }
     });
 
-    expensesRouter.delete('/expense/:id', async (req, res) => {
+    expensesRouter.patch('/:id', async (req, res) => {
+        try {
+            const user = req.user as User;
+            if (!user) {
+                res.status(401).send();
+                return;
+            }
+            const newValues = (<SimpleExpense>req.body);
+            const expense = await expenseLogic.getById(newValues.id);
+            if (!expense) {
+                res.status(404).send();
+                return;
+            }
+            expense.title = newValues.title;
+            expense.cost = newValues.cost;
+            expense.budgetId = newValues.budgetId;
+            const updated = await expenseLogic.update(expense);
+            logger.info(`user with id [${user.id}] updated expense with id [${expense.id}]`);
+            res.status(200).send({
+                cost: Number(updated.cost), title: updated.title, budgetId: updated.budgetId, id: updated.id
+            } as SimpleExpense);
+            return;
+        } catch (err) {
+            res.status(500).send({message: 'Something went wrong.', err: err});
+        }
+    });
+
+    expensesRouter.delete('/:id', async (req, res) => {
         try {
             const user = req.user;
             if (user == null) {

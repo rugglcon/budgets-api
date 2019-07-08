@@ -1,14 +1,14 @@
 {
     "synchronize": false,
     "entities": [
-        "dist/entities/*.js"
+        "dist/data/entities/*.js"
     ],
     "migrations": [
-        "dist/migrations/*.js"
+        "dist/data/migrations/*.js"
     ],
     "cli": {
-        "entitiesDir": "src/entities",
-        "migrationsDir": "src/migrations"
+        "entitiesDir": "src/data/entities",
+        "migrationsDir": "src/data/migrations"
     },
     "type": "mysql",
     "host": "localhost",

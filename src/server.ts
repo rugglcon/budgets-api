@@ -4,12 +4,12 @@ import * as fs from 'fs';
 import { homedir } from 'os';
 import { createConnection } from 'typeorm';
 import { BudgetLogic } from './logic/budgets';
-import { Budget } from './entities/budget';
+import { Budget } from './data/entities/budget';
 import { ExpenseLogic } from './logic/expenses';
 import { UserLogic } from './logic/users';
-import { User } from './entities/user';
+import { User } from './data/entities/user';
 import { AuthLogic } from './logic/auth';
-import { Expense } from './entities/expense';
+import { Expense } from './data/entities/expense';
 import { logger } from './util/logger';
 
 const port = 4000;

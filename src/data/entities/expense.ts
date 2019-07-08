@@ -7,6 +7,16 @@ export interface NewExpense {
     budgetId: number;
 }
 
+/**
+ * Frontend expense model
+ */
+export interface SimpleExpense {
+    id: number;
+    cost: number;
+    budgetId: number;
+    title: string;
+}
+
 @Entity()
 export class Expense {
     @PrimaryGeneratedColumn()

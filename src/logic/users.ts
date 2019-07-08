@@ -1,5 +1,5 @@
 import { BaseLogic } from './base-logic';
-import { User } from 'entities/user';
+import { User } from 'data/entities/user';
 import { Repository } from 'typeorm';
 import * as jwt from 'jsonwebtoken';
 

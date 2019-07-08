@@ -1,4 +1,4 @@
-import { NewUser } from 'entities/user';
+import { NewUser } from 'data/entities/user';
 import { Router, RequestHandler } from 'express';
 import { PassportStatic } from 'passport';
 import { UserLogic } from 'logic/users';
@@ -26,7 +26,7 @@ export const userRoutes = (cors: () => RequestHandler, passport: PassportStatic,
 
     // logs a user in
     userRouter.post(
-        '/user/login', (req, res, next) => {
+        '/login', (req, res, next) => {
             passport.authenticate('local', (err, user, info) => {
                 if (err) {
                     console.log('yikes', err);
@@ -35,7 +35,7 @@ export const userRoutes = (cors: () => RequestHandler, passport: PassportStatic,
 
                 if (!user) {
                     console.log('null user');
-                    return res.redirect('/login');
+                    return res.redirect('/api/user/login');
                 }
 
                 console.log('user', user);
@@ -59,7 +59,7 @@ export const userRoutes = (cors: () => RequestHandler, passport: PassportStatic,
     );
 
     // logs a user out
-    userRouter.post('/user/logout', passport.authenticate('jwt', {
+    userRouter.post('/logout', passport.authenticate('jwt', {
         session: true
     }), async (req, res) => {
         try {
@@ -76,7 +76,7 @@ export const userRoutes = (cors: () => RequestHandler, passport: PassportStatic,
     });
 
     // creates a user
-    userRouter.post('/user', async (req, res) => {
+    userRouter.post('/', async (req, res) => {
         // creates user and logs them in
         const newUser: NewUser = {
             userName: req.body.userName,
@@ -90,7 +90,7 @@ export const userRoutes = (cors: () => RequestHandler, passport: PassportStatic,
         const token = userLogic.generateJWT(user);
         logger.info('generated token for new user');
         logger.info(token);
-        res.status(200).send(token);
+        res.status(200).send({token});
     });
 
     return userRouter;
