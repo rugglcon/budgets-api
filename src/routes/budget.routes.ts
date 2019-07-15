@@ -61,7 +61,10 @@ export const budgetRoutes = (cors: () => RequestHandler, budgetLogic: BudgetLogi
                     return;
                 }
                 res.status(200).send({
-                    id: data.id, name: data.name, total: Number(data.total), ownerId: data.ownerId
+                    id: data.id,
+                    name: data.name,
+                    total: data.total,
+                    ownerId: data.ownerId
                 } as SimpleBudget);
             }
         } catch (err) {
@@ -117,7 +120,10 @@ export const budgetRoutes = (cors: () => RequestHandler, budgetLogic: BudgetLogi
             console.log('updated budget', data);
             logger.info(`user with id ${user.id} updated budget with id ${data.id}`);
             res.status(200).send({
-                id: data.id, total: Number(data.total), name: data.name, ownerId: data.ownerId
+                id: data.id,
+                total: data.total,
+                name: data.name,
+                ownerId: data.ownerId
             } as SimpleBudget);
         } catch (err) {
             res.status(500).send({message: 'Something went wrong.', err: err});
@@ -152,7 +158,10 @@ export const budgetRoutes = (cors: () => RequestHandler, budgetLogic: BudgetLogi
             if (data) {
                 logger.info(`budget created with id: [${data.id}]`);
                 return res.status(200).send({
-                    id: data.id, name: data.name, total: Number(data.total), ownerId: data.ownerId
+                    id: data.id,
+                    name: data.name,
+                    total: data.total,
+                    ownerId: data.ownerId
                 } as SimpleBudget);
             } else {
                 logger.error('something went wrong trying to create the budget');

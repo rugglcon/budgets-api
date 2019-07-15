@@ -17,7 +17,7 @@ export class ExpenseLogic extends BaseLogic<Expense> {
         for (const e of expenses) {
             ret.push({
                 id: e.id,
-                cost: Number(e.cost),
+                cost: e.cost,
                 title: e.title,
                 budgetId: e.budgetId
             });

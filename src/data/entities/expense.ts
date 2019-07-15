@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Budget } from './budget';
+import { decimal } from '../../util/decimal.transformer';
 
 export interface NewExpense {
     title: string;
@@ -41,7 +42,8 @@ export class Expense {
         default: 0,
         type: 'decimal',
         precision: 15,
-        scale: 2
+        scale: 2,
+        transformer: decimal
     })
     cost: number;
 }

@@ -40,7 +40,10 @@ export const expenseRoutes = (cors: () => RequestHandler,
             const reS = await expenseLogic.create(expense);
             logger.info(`user with id [${user.id}] created expense [${reS.id}] under budget [${expense.budgetId}]`);
             res.status(200).send({
-                id: reS.id, budgetId: reS.budgetId, cost: Number(reS.cost), title: reS.title
+                id: reS.id,
+                budgetId: reS.budgetId,
+                cost: reS.cost,
+                title: reS.title
             } as SimpleExpense);
         } catch (err) {
             res.status(500).send({message: 'Something went wrong.', err: err});
@@ -66,7 +69,10 @@ export const expenseRoutes = (cors: () => RequestHandler,
             const updated = await expenseLogic.update(expense);
             logger.info(`user with id [${user.id}] updated expense with id [${expense.id}]`);
             res.status(200).send({
-                cost: Number(updated.cost), title: updated.title, budgetId: updated.budgetId, id: updated.id
+                cost: updated.cost,
+                title: updated.title,
+                budgetId: updated.budgetId,
+                id: updated.id
             } as SimpleExpense);
             return;
         } catch (err) {

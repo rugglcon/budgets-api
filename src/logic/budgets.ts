@@ -13,7 +13,7 @@ export class BudgetLogic extends BaseLogic<Budget> {
         const ret: SimpleBudget[] = [];
         for (const b of budgets) {
             ret.push({
-                id: b.id, total: Number(b.total), name: b.name, ownerId: b.ownerId
+                id: b.id, total: b.total, name: b.name, ownerId: b.ownerId
             });
         }
 
