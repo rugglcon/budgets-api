@@ -10,7 +10,7 @@ import { UserLogic } from './logic/users';
 import { User } from './data/entities/user';
 import { AuthLogic } from './logic/auth';
 import { Expense } from './data/entities/expense';
-import { logger } from './util/logger';
+import logger from './util/logger';
 
 const port = 4000;
 

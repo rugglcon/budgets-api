@@ -3,7 +3,7 @@ import { Router, RequestHandler } from 'express';
 import { PassportStatic } from 'passport';
 import { UserLogic } from 'logic/users';
 import { AuthLogic } from 'logic/auth';
-import { logger } from '../util/logger';
+import logger from '../util/logger';
 
 /**
  * Creates the user routes
@@ -30,24 +30,25 @@ export const userRoutes = (cors: () => RequestHandler, passport: PassportStatic,
             passport.authenticate('local', (err, user, info) => {
                 if (err) {
                     console.log('yikes', err);
+                    logger.error(err);
                     return next(err);
                 }
 
                 if (!user) {
-                    console.log('null user');
+                    logger.warn('null user');
                     return res.redirect('/api/user/login');
                 }
 
                 console.log('user', user);
                 req.logIn(user, error => {
                     if (error) {
+                        logger.error(error);
                         console.log('double yikes', error);
                         return next(error);
                     }
-                    console.log('hi', user);
                     if (req.user) {
                         const token = userLogic.generateJWT(req.user);
-                        console.log('sending back', token);
+                        logger.info('sending back token ' + token);
                         return res.status(200).send({token});
                     } else {
                         res.status(401).send();
@@ -64,13 +65,15 @@ export const userRoutes = (cors: () => RequestHandler, passport: PassportStatic,
     }), async (req, res) => {
         try {
             if (req.user == null) {
-                res.status(400).send({message: 'User does not exist.'});
+                return res.status(400).send({message: 'User does not exist.'});
             }
-            req.logout();
+            logger.info(`logging out user [${req.user.id}]`);
             await authLogic.logout(req.user);
+            req.logout();
             res.status(204).send();
         } catch (e) {
-            logger.error(e);
+            console.log(e);
+            logger.error(e.toString());
             res.status(500).send({message: 'Something went wrong.', err: e});
         }
     });
@@ -86,10 +89,9 @@ export const userRoutes = (cors: () => RequestHandler, passport: PassportStatic,
             lastName: req.body.lastName
         };
         const user = await authLogic.signup(newUser);
-        logger.info(`registered new user with username ${user.userName}`);
+        logger.debug(`registered new user with username ${user.userName}`);
         const token = userLogic.generateJWT(user);
-        logger.info('generated token for new user');
-        logger.info(token);
+        logger.info('generated token for new user: ' + token);
         res.status(200).send({token});
     });
 

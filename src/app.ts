@@ -13,7 +13,7 @@ import * as cors from 'cors';
 import { userRoutes } from './routes/user.routes';
 import { budgetRoutes } from './routes/budget.routes';
 import { expenseRoutes } from './routes/expense.routes';
-import { logger } from './util/logger';
+import logger from './util/logger';
 
 class App {
     public app: express.Application;
@@ -46,14 +46,14 @@ class App {
                 try {
                     const user = await this.authLogic.login({ userName, password });
                     if (user) {
-                        console.log('got user in local strategy', user);
+                        logger.info(`user with id [${user.id}] has logged in`);
                         return done(null, user);
                     } else {
-                        console.log('User not found');
+                        logger.error('Someone tried to log in unsuccessfully');
                         return done('User not found', null);
                     }
                 } catch (err) {
-                    console.log('oh no!', err);
+                    logger.error('An error occurred:', err);
                     return done(err, null);
                 }
             })
@@ -64,30 +64,27 @@ class App {
                 jwtFromRequest:  passportJwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
                 secretOrKey: 'secret'
             }, async (jwt_payload, done) => {
-                console.log('jwt_payload', jwt_payload);
                 try {
                     const user = await this.userLogic.getById(jwt_payload.id);
                     if (user) {
-                        console.log('got user inside jwt_payload callback', user);
+                        logger.info(`got user [${user.id}] inside jwt_payload callback`);
                         return done(null, user);
                     } else {
-                        console.log('unable to get user inside jwt_payload callback');
+                        logger.error('unable to get user inside jwt_payload callback');
                         return done('User not found', null);
                     }
                 } catch (err) {
-                    console.log('oh noes', err);
+                    logger.error('oh noes', err);
                     return done(err, null);
                 }
             })
         );
 
         passport.serializeUser((user: User, done) => {
-            console.log('serializing');
             return done(null, user.id);
         });
 
         passport.deserializeUser((id: number, done) => {
-            console.log('deserializing');
             this.userLogic.getById(id)
                             .then(user => { console.log('got user in deserializer', user); done(null, user); })
                             .catch(err => { console.log('yikes', err); done(err, null); });

@@ -1,5 +1,5 @@
 import { Repository, FindManyOptions, FindOneOptions } from 'typeorm';
-import { logger } from '../util/logger';
+import logger from '../util/logger';
 
 export class BaseLogic<T> {
     protected _repo: Repository<T>;
@@ -35,7 +35,6 @@ export class BaseLogic<T> {
             throw e;
         }
         logger.info(`got item with id: ${id}`);
-        console.log('got item by id', item);
         return item;
     }
 
@@ -46,7 +45,7 @@ export class BaseLogic<T> {
         let items = null;
         try {
             items = await this._repo.find();
-        } catch(e) {
+        } catch (e) {
             logger.info(e);
             throw e;
         }
@@ -62,6 +61,7 @@ export class BaseLogic<T> {
         try {
             newItem = await this._repo.save(item);
         } catch (e) {
+            console.log(e);
             logger.error(e);
             throw e;
         }

@@ -3,7 +3,7 @@ import { BudgetLogic } from '../logic/budgets';
 import { NewExpense, SimpleExpense } from '../data/entities/expense';
 import { Expense } from '../data/entities/expense';
 import { ExpenseLogic } from '../logic/expenses';
-import { logger } from '../util/logger';
+import logger from '../util/logger';
 import { User } from 'data/entities/user';
 
 export const expenseRoutes = (cors: () => RequestHandler,
@@ -17,6 +17,7 @@ export const expenseRoutes = (cors: () => RequestHandler,
         if (!isNaN(_id)) {
             next();
         } else {
+            logger.error(`id was not a number: [${id}]`);
             res.status(400).send({ message: 'Id must be a number.', id: id });
         }
     });

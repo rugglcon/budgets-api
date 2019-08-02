@@ -1,5 +1,5 @@
 import { RequestHandler, Router } from 'express';
-import { logger } from '../util/logger';
+import logger from '../util/logger';
 import { BudgetLogic } from '../logic/budgets';
 import { Budget, NewBudget, SimpleBudget } from '../data/entities/budget';
 import { User } from 'data/entities/user';
@@ -16,6 +16,7 @@ export const budgetRoutes = (cors: () => RequestHandler, budgetLogic: BudgetLogi
         if (!isNaN(_id)) {
             next();
         } else {
+            logger.error(`id was not a number: [${id}]`);
             res.status(400).send({ message: 'Id must be a number.', id: id });
         }
     });
@@ -25,19 +26,16 @@ export const budgetRoutes = (cors: () => RequestHandler, budgetLogic: BudgetLogi
         // should validate user then return that user's budgets
         try {
             const user = req.user;
-            console.log('user in budgets', req.user);
             if (user == null) {
                 // not authorized/logged in
-                logger.warn('user attempted to get budgets without authenticating.');
+                logger.error('user attempted to get budgets without authenticating.');
                 res.status(401).send({message: 'Not authorized.'});
                 return;
             }
             const data = await budgetLogic.getFrontendBudgets({where: {ownerId: user.id}});
-            logger.info('all budgets', data);
             res.status(200).send(data);
         } catch (err) {
-            console.log('error', err);
-            logger.error(err);
+            logger.error('error while getting all budgets', err);
             res.status(500).send({message: 'Something went wrong.', err: err});
         }
     });
@@ -49,6 +47,7 @@ export const budgetRoutes = (cors: () => RequestHandler, budgetLogic: BudgetLogi
             const user = req.user;
             if (user == null) {
                 // not authorized/logged in
+                logger.error('user attempted to get budgets without authenticating.');
                 res.status(401).send();
                 return;
             }
