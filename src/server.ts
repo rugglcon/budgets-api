@@ -14,11 +14,11 @@ import logger from './util/logger';
 
 const port = 4000;
 
-const configs = JSON.parse(
-    fs.readFileSync(
-        path.join(homedir(), '.config/budgets/config.json')
-    ).toString()
-);
+// const configs = JSON.parse(
+//     fs.readFileSync(
+//         path.join(homedir(), '.config/budgets/config.json')
+//     ).toString()
+// );
 
 createConnection().then(async conn => {
     app.dbConnection = conn;
