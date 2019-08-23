@@ -22,7 +22,7 @@ export const expenseRoutes = (cors: () => RequestHandler,
         }
     });
 
-    expensesRouter.options('*', cors());
+    // expensesRouter.all('*', cors());
 
     // creates an expense
     expensesRouter.post('/', async (req, res) => {

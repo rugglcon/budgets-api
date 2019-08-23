@@ -22,7 +22,7 @@ export const userRoutes = (cors: () => RequestHandler, passport: PassportStatic,
         }
     });
 
-    userRouter.options('*', cors());
+    // userRouter.all('*', cors({ origin: true, credentials: true }));
 
     // logs a user in
     userRouter.post(

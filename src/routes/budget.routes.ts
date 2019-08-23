@@ -8,7 +8,7 @@ import { ExpenseLogic } from 'logic/expenses';
 export const budgetRoutes = (cors: () => RequestHandler, budgetLogic: BudgetLogic, expenseLogic: ExpenseLogic): Router => {
     const budgetsRouter = Router();
 
-    budgetsRouter.options('*', cors());
+    // budgetsRouter.all('*', cors());
 
     // validates that id is a number
     budgetsRouter.param('id', (_req, res, next, id) => {
