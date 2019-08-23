@@ -28,7 +28,14 @@ class App {
     }
 
     config(): void {
-        this.app.use(cors({ origin: true, credentials: true }));
+        this.app.use(cors({
+            origin: true,
+            credentials: true
+        }));
+        this.app.options('*', cors({
+            origin: true,
+            credentials: true
+        }));
         this.app.use((_req, res, next) => {
             res.header('Access-Control-Allow-Origin', '*');
             res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
