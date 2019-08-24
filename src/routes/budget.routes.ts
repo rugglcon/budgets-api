@@ -4,11 +4,13 @@ import { BudgetLogic } from '../logic/budgets';
 import { Budget, NewBudget, SimpleBudget } from '../data/entities/budget';
 import { User } from 'data/entities/user';
 import { ExpenseLogic } from 'logic/expenses';
+import cors = require('cors');
 
-export const budgetRoutes = (cors: () => RequestHandler, budgetLogic: BudgetLogic, expenseLogic: ExpenseLogic): Router => {
+export const budgetRoutes = (appCors: (options?: cors.CorsOptions | cors.CorsOptionsDelegate) => RequestHandler,
+                                budgetLogic: BudgetLogic, expenseLogic: ExpenseLogic): Router => {
     const budgetsRouter = Router();
 
-    // budgetsRouter.all('*', cors());
+    budgetsRouter.all('*', appCors({ origin: true, credentials: true }));
 
     // validates that id is a number
     budgetsRouter.param('id', (_req, res, next, id) => {

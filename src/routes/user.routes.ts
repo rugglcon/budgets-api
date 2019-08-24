@@ -4,11 +4,12 @@ import { PassportStatic } from 'passport';
 import { UserLogic } from 'logic/users';
 import { AuthLogic } from 'logic/auth';
 import logger from '../util/logger';
+import cors = require('cors');
 
 /**
  * Creates the user routes
  */
-export const userRoutes = (cors: () => RequestHandler, passport: PassportStatic,
+export const userRoutes = (appCors: (options?: cors.CorsOptions | cors.CorsOptionsDelegate) => RequestHandler, passport: PassportStatic,
                             userLogic: UserLogic, authLogic: AuthLogic): Router => {
     const userRouter = Router();
 
@@ -22,7 +23,7 @@ export const userRoutes = (cors: () => RequestHandler, passport: PassportStatic,
         }
     });
 
-    // userRouter.all('*', cors({ origin: true, credentials: true }));
+    userRouter.all('*', appCors({ origin: true, credentials: true }));
 
     // logs a user in
     userRouter.post(
