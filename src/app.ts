@@ -31,6 +31,7 @@ class App {
         this.app.use((_req, res, next) => {
             res.header('Access-Control-Allow-Origin', '*');
             res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,HEAD');
             next();
         });
         this.app.use(bodyParser.json());
@@ -91,12 +92,12 @@ class App {
     }
 
     routes(): void {
-        this.app.options('*', cors({ credentials: true, origin: true }));
+        // this.app.options('*', cors({ credentials: true, origin: true }));
 
         /**
          * BUDGET ROUTES
          */
-        this.app.use('/api/budgets', cors({ credentials: true, origin: true }), passport.authenticate('jwt', {
+        this.app.use('/api/budgets', passport.authenticate('jwt', {
             session: true
         }), budgetRoutes(this.budgetLogic, this.expenseLogic));
         logger.info('instantiated budget routes');
@@ -104,7 +105,7 @@ class App {
         /**
          * EXPENSE ROUTES
          */
-        this.app.use('/api/expense', cors({ credentials: true, origin: true }), passport.authenticate('jwt', {
+        this.app.use('/api/expense', passport.authenticate('jwt', {
             session: true
         }), expenseRoutes(this.budgetLogic, this.expenseLogic));
         logger.info('instantiated expense routes');
@@ -112,7 +113,7 @@ class App {
         /**
          * USER ROUTES
          */
-        this.app.use('/api/user', cors({ credentials: true, origin: true }), userRoutes(passport, this.userLogic, this.authLogic));
+        this.app.use('/api/user', userRoutes(passport, this.userLogic, this.authLogic));
         logger.info('instantiated user routes');
     }
 }
