@@ -32,7 +32,8 @@ class App {
         this.app.options('*', cors({
             methods: ['POST', 'DELETE', 'GET', 'HEAD', 'OPTIONS'],
             credentials: true,
-            origin: true
+            origin: true,
+            preflightContinue: true
         }));
         this.app.use((_req, res, next) => {
             res.header('Access-Control-Allow-Origin', '*');
