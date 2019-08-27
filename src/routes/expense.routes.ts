@@ -23,10 +23,7 @@ export const expenseRoutes = (appCors: (options?: cors.CorsOptions | cors.CorsOp
         }
     });
 
-    expensesRouter.options('*', appCors({
-        origin: true,
-        credentials: true
-    }));
+    // expensesRouter.options('*', appCors({ origin: true, credentials: true }));
 
     // creates an expense
     expensesRouter.post('/', async (req, res) => {

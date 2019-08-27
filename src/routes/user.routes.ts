@@ -23,7 +23,7 @@ export const userRoutes = (appCors: (options?: cors.CorsOptions | cors.CorsOptio
         }
     });
 
-    userRouter.options('*', appCors({ origin: true, credentials: true }));
+    // userRouter.options('*', appCors({ origin: true, credentials: true }));
 
     // logs a user in
     userRouter.post(
