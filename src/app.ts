@@ -28,12 +28,13 @@ class App {
     }
 
     config(): void {
-        this.app.use((_req, res, next) => {
-            res.header('Access-Control-Allow-Origin', '*');
-            res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,HEAD');
-            next();
-        });
+        this.app.use(cors());
+        // this.app.use((_req, res, next) => {
+        //     res.header('Access-Control-Allow-Origin', '*');
+        //     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        //     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,HEAD');
+        //     next();
+        // });
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: false}));
         this.app.use(passport.initialize());
@@ -92,7 +93,7 @@ class App {
     }
 
     routes(): void {
-        // this.app.options('*', cors({ credentials: true, origin: true }));
+        // this.app.options('*', cors());
 
         /**
          * BUDGET ROUTES
