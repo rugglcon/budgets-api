@@ -28,6 +28,7 @@ class App {
     }
 
     config(): void {
+        this.app.options('*', cors());
         this.app.use(cors());
         // this.app.use((_req, res, next) => {
         //     res.header('Access-Control-Allow-Origin', '*');
@@ -93,8 +94,6 @@ class App {
     }
 
     routes(): void {
-        // this.app.options('*', cors());
-
         /**
          * BUDGET ROUTES
          */
