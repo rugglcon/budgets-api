@@ -28,13 +28,6 @@ class App {
     }
 
     config(): void {
-        // this.app.use(cors());
-        this.app.options('*', cors({
-            methods: ['POST', 'DELETE', 'GET', 'HEAD', 'OPTIONS'],
-            credentials: true,
-            origin: true,
-            preflightContinue: true
-        }));
         this.app.use((_req, res, next) => {
             res.header('Access-Control-Allow-Origin', '*');
             res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -98,26 +91,28 @@ class App {
     }
 
     routes(): void {
+        this.app.options('*', cors({ credentials: true, origin: true }));
+
         /**
          * BUDGET ROUTES
          */
-        this.app.use('/api/budgets', cors(), passport.authenticate('jwt', {
+        this.app.use('/api/budgets', cors({ credentials: true, origin: true }), passport.authenticate('jwt', {
             session: true
-        }), budgetRoutes(cors, this.budgetLogic, this.expenseLogic));
+        }), budgetRoutes(this.budgetLogic, this.expenseLogic));
         logger.info('instantiated budget routes');
 
         /**
          * EXPENSE ROUTES
          */
-        this.app.use('/api/expense', cors(), passport.authenticate('jwt', {
+        this.app.use('/api/expense', cors({ credentials: true, origin: true }), passport.authenticate('jwt', {
             session: true
-        }), expenseRoutes(cors, this.budgetLogic, this.expenseLogic));
+        }), expenseRoutes(this.budgetLogic, this.expenseLogic));
         logger.info('instantiated expense routes');
 
         /**
          * USER ROUTES
          */
-        this.app.use('/api/user', cors(), userRoutes(cors, passport, this.userLogic, this.authLogic));
+        this.app.use('/api/user', cors({ credentials: true, origin: true }), userRoutes(passport, this.userLogic, this.authLogic));
         logger.info('instantiated user routes');
     }
 }

@@ -6,11 +6,8 @@ import { User } from 'data/entities/user';
 import { ExpenseLogic } from 'logic/expenses';
 import cors = require('cors');
 
-export const budgetRoutes = (appCors: (options?: cors.CorsOptions | cors.CorsOptionsDelegate) => RequestHandler,
-                                budgetLogic: BudgetLogic, expenseLogic: ExpenseLogic): Router => {
+export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogic): Router => {
     const budgetsRouter = Router();
-
-    // budgetsRouter.options('*', appCors({ origin: true, credentials: true }));
 
     // validates that id is a number
     budgetsRouter.param('id', (_req, res, next, id) => {

@@ -7,8 +7,7 @@ import logger from '../util/logger';
 import { User } from 'data/entities/user';
 import cors = require('cors');
 
-export const expenseRoutes = (appCors: (options?: cors.CorsOptions | cors.CorsOptionsDelegate) => RequestHandler,
-                            budgetLogic: BudgetLogic,
+export const expenseRoutes = (budgetLogic: BudgetLogic,
                             expenseLogic: ExpenseLogic): Router => {
     const expensesRouter = Router();
 
@@ -22,8 +21,6 @@ export const expenseRoutes = (appCors: (options?: cors.CorsOptions | cors.CorsOp
             res.status(400).send({ message: 'Id must be a number.', id: id });
         }
     });
-
-    // expensesRouter.options('*', appCors({ origin: true, credentials: true }));
 
     // creates an expense
     expensesRouter.post('/', async (req, res) => {

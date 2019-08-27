@@ -9,7 +9,7 @@ import cors = require('cors');
 /**
  * Creates the user routes
  */
-export const userRoutes = (appCors: (options?: cors.CorsOptions | cors.CorsOptionsDelegate) => RequestHandler, passport: PassportStatic,
+export const userRoutes = (passport: PassportStatic,
                             userLogic: UserLogic, authLogic: AuthLogic): Router => {
     const userRouter = Router();
 
@@ -22,8 +22,6 @@ export const userRoutes = (appCors: (options?: cors.CorsOptions | cors.CorsOptio
             res.status(400).send({ message: 'Id must be a number.', id: id });
         }
     });
-
-    // userRouter.options('*', appCors({ origin: true, credentials: true }));
 
     // logs a user in
     userRouter.post(
