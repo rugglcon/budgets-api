@@ -28,7 +28,7 @@ class App {
     }
 
     config(): void {
-        this.app.use(cors());
+        // this.app.use(cors());
         this.app.options('*', cors());
         this.app.use((_req, res, next) => {
             res.header('Access-Control-Allow-Origin', '*');
@@ -96,7 +96,7 @@ class App {
         /**
          * BUDGET ROUTES
          */
-        this.app.use('/api/budgets', passport.authenticate('jwt', {
+        this.app.use('/api/budgets', cors(), passport.authenticate('jwt', {
             session: true
         }), budgetRoutes(cors, this.budgetLogic, this.expenseLogic));
         logger.info('instantiated budget routes');
@@ -104,7 +104,7 @@ class App {
         /**
          * EXPENSE ROUTES
          */
-        this.app.use('/api/expense', passport.authenticate('jwt', {
+        this.app.use('/api/expense', cors(), passport.authenticate('jwt', {
             session: true
         }), expenseRoutes(cors, this.budgetLogic, this.expenseLogic));
         logger.info('instantiated expense routes');
@@ -112,7 +112,7 @@ class App {
         /**
          * USER ROUTES
          */
-        this.app.use('/api/user', userRoutes(cors, passport, this.userLogic, this.authLogic));
+        this.app.use('/api/user', cors(), userRoutes(cors, passport, this.userLogic, this.authLogic));
         logger.info('instantiated user routes');
     }
 }

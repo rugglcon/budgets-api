@@ -10,7 +10,7 @@ export const budgetRoutes = (appCors: (options?: cors.CorsOptions | cors.CorsOpt
                                 budgetLogic: BudgetLogic, expenseLogic: ExpenseLogic): Router => {
     const budgetsRouter = Router();
 
-    // budgetsRouter.all('*', appCors({ origin: true, credentials: true }));
+    budgetsRouter.options('*', appCors({ origin: true, credentials: true }));
 
     // validates that id is a number
     budgetsRouter.param('id', (_req, res, next, id) => {
