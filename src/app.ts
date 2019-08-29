@@ -97,7 +97,7 @@ class App {
         /**
          * BUDGET ROUTES
          */
-        this.app.use('/api/budgets', passport.authenticate('jwt', {
+        this.app.use('/budgets', passport.authenticate('jwt', {
             session: true
         }), budgetRoutes(this.budgetLogic, this.expenseLogic));
         logger.info('instantiated budget routes');
@@ -105,7 +105,7 @@ class App {
         /**
          * EXPENSE ROUTES
          */
-        this.app.use('/api/expense', passport.authenticate('jwt', {
+        this.app.use('/expense', passport.authenticate('jwt', {
             session: true
         }), expenseRoutes(this.budgetLogic, this.expenseLogic));
         logger.info('instantiated expense routes');
@@ -113,7 +113,7 @@ class App {
         /**
          * USER ROUTES
          */
-        this.app.use('/api/user', userRoutes(passport, this.userLogic, this.authLogic));
+        this.app.use('/user', userRoutes(passport, this.userLogic, this.authLogic));
         logger.info('instantiated user routes');
     }
 }
