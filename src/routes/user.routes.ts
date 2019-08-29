@@ -35,7 +35,7 @@ export const userRoutes = (passport: PassportStatic,
 
                 if (!user) {
                     logger.warn('null user');
-                    return res.redirect('/api/user/login');
+                    return res.redirect('/user/login');
                 }
 
                 console.log('user', user);
