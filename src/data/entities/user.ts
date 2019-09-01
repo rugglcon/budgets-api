@@ -41,6 +41,11 @@ export class User {
         default: false
     })
     loggedIn: boolean;
+
+    @Column({
+        type: 'datetime'
+    })
+    signUpDate: Date;
 }
 
 export interface Credentials {
@@ -54,6 +59,7 @@ export interface NewUser {
     email: string;
     firstName: string;
     lastName: string;
+    signUpDate: Date;
 }
 
 export interface LoginSuccess {

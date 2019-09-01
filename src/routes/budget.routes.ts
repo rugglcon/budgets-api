@@ -1,10 +1,9 @@
-import { RequestHandler, Router } from 'express';
+import { Router } from 'express';
 import logger from '../util/logger';
 import { BudgetLogic } from '../logic/budgets';
 import { Budget, NewBudget, SimpleBudget } from '../data/entities/budget';
 import { User } from 'data/entities/user';
 import { ExpenseLogic } from 'logic/expenses';
-import cors = require('cors');
 
 export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogic): Router => {
     const budgetsRouter = Router();

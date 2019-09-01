@@ -16,7 +16,6 @@ export class JSError {
 
     @Column({
         type: 'datetime',
-        default: new Date(),
         nullable: false
     })
     timestamp: Date;
