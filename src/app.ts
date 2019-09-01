@@ -1,9 +1,9 @@
-import * as auth from './logic/auth';
+import { AuthLogic } from './logic/auth';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import * as budgets from './logic/budgets';
-import * as users from './logic/users';
-import * as expenses from './logic/expenses';
+import { BudgetLogic } from './logic/budgets';
+import { UserLogic } from './logic/users';
+import { ExpenseLogic } from './logic/expenses';
 import { User } from './data/entities/user';
 import * as typeorm from 'typeorm';
 import * as passport from 'passport';
@@ -14,14 +14,18 @@ import { userRoutes } from './routes/user.routes';
 import { budgetRoutes } from './routes/budget.routes';
 import { expenseRoutes } from './routes/expense.routes';
 import logger from './util/logger';
+import { ErrorLogic } from './logic/errors';
+import { errorRoutes } from './routes/errors.routes';
+import * as useragent from 'express-useragent';
 
 class App {
     public app: express.Application;
     dbConnection: typeorm.Connection;
-    budgetLogic: budgets.BudgetLogic;
-    expenseLogic: expenses.ExpenseLogic;
-    userLogic: users.UserLogic;
-    authLogic: auth.AuthLogic;
+    budgetLogic: BudgetLogic;
+    expenseLogic: ExpenseLogic;
+    userLogic: UserLogic;
+    authLogic: AuthLogic;
+    errorLogic: ErrorLogic;
 
     constructor() {
         this.app = express();
@@ -38,6 +42,7 @@ class App {
         // });
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: false}));
+        this.app.use(useragent.express());
         this.app.use(passport.initialize());
         this.app.use(passport.session());
 
@@ -88,8 +93,8 @@ class App {
 
         passport.deserializeUser((id: number, done) => {
             this.userLogic.getById(id)
-                            .then(user => { console.log('got user in deserializer', user); done(null, user); })
-                            .catch(err => { console.log('yikes', err); done(err, null); });
+                            .then(user => { logger.info('got user in deserializer', user.userName); done(null, user); })
+                            .catch(err => { logger.error('yikes', err); done(err, null); });
         });
     }
 
@@ -115,6 +120,14 @@ class App {
          */
         this.app.use('/user', userRoutes(passport, this.userLogic, this.authLogic));
         logger.info('instantiated user routes');
+
+        /**
+         * ERROR ROUTES
+         */
+        this.app.use('/', passport.authenticate('jwt', {
+            session: true
+        }), errorRoutes(this.errorLogic));
+        logger.info('instantiated error routes');
     }
 }
 export default new App();

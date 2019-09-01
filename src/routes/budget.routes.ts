@@ -47,7 +47,7 @@ export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogi
             if (user == null) {
                 // not authorized/logged in
                 logger.error('user attempted to get budgets without authenticating.');
-                res.status(401).send();
+                res.sendStatus(401);
                 return;
             }
             const data = await budgetLogic.getById(+(req.params.id));
@@ -74,13 +74,13 @@ export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogi
         try {
             const user = req.user as User;
             if (user == null) {
-                res.status(401).send();
+                res.sendStatus(401);
                 return;
             }
 
             const budget = await budgetLogic.getById(+(req.params.id));
             if (budget.ownerId !== user.id) {
-                res.status(403).send();
+                res.sendStatus(403);
                 return;
             }
 
@@ -98,24 +98,23 @@ export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogi
             const user = req.user;
             if (user == null) {
                 // not authorized/logged in
-                res.status(401).send();
+                res.sendStatus(401);
                 return;
             }
             const budg = (<SimpleBudget>req.body);
             if (budg.ownerId !== user.id) {
-                res.status(403).send();
+                res.sendStatus(403);
                 return;
             }
             const budget = await budgetLogic.getById(budg.id);
             if (!budget) {
-                res.status(404).send();
+                res.sendStatus(404);
                 return;
             }
             // update the updatable fields
             budget.name = budg.name;
             budget.total = budg.total;
             const data = await budgetLogic.update(budget);
-            console.log('updated budget', data);
             logger.info(`user with id ${user.id} updated budget with id ${data.id}`);
             res.status(200).send({
                 id: data.id,
@@ -136,7 +135,7 @@ export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogi
             const user = req.user as User;
             if (user == null) {
                 // not authorized/logged in
-                return res.status(401).send();
+                res.sendStatus(401);
             }
             const newBudget = (<NewBudget>req.body);
             logger.info(`user with email: [${user.email}] attempting
@@ -177,12 +176,12 @@ export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogi
             const user = req.user;
             if (user == null) {
                 // not authorized/logged in
-                res.status(401).send();
+                res.sendStatus(401);
                 return;
             }
             const budget = await budgetLogic.getById(Number(req.params.id));
             if (budget.ownerId !== user.id) {
-                res.status(403).send();
+                res.sendStatus(403);
                 return;
             }
             const data = await budgetLogic.delete(budget.id);

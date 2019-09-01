@@ -16,11 +16,10 @@ export const userRoutes = (passport: PassportStatic,
     // validates that id is a number
     userRouter.param('id', (_req, res, next, id) => {
         const _id = Number(id);
-        if (!isNaN(_id)) {
-            next();
-        } else {
-            res.status(400).send({ message: 'Id must be a number.', id: id });
+        if (isNaN(_id)) {
+            return res.status(400).send({ message: 'Id must be a number.', id: id });
         }
+        next();
     });
 
     // logs a user in
@@ -28,7 +27,6 @@ export const userRoutes = (passport: PassportStatic,
         '/login', (req, res, next) => {
             passport.authenticate('local', (err, user, info) => {
                 if (err) {
-                    console.log('yikes', err);
                     logger.error(err);
                     return next(err);
                 }
@@ -38,11 +36,9 @@ export const userRoutes = (passport: PassportStatic,
                     return res.redirect('/user/login');
                 }
 
-                console.log('user', user);
                 req.logIn(user, error => {
                     if (error) {
                         logger.error(error);
-                        console.log('double yikes', error);
                         return next(error);
                     }
                     if (req.user) {
@@ -50,7 +46,7 @@ export const userRoutes = (passport: PassportStatic,
                         logger.info('sending back token ' + token);
                         return res.status(200).send({token});
                     } else {
-                        res.status(401).send();
+                        res.sendStatus(401);
                     }
                     next();
                 });
@@ -69,9 +65,8 @@ export const userRoutes = (passport: PassportStatic,
             logger.info(`logging out user [${req.user.id}]`);
             await authLogic.logout(req.user);
             req.logout();
-            res.status(204).send();
+            res.sendStatus(204);
         } catch (e) {
-            console.log(e);
             logger.error(e.toString());
             res.status(500).send({message: 'Something went wrong.', err: e});
         }

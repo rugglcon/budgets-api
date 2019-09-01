@@ -11,6 +11,8 @@ import { User } from './data/entities/user';
 import { AuthLogic } from './logic/auth';
 import { Expense } from './data/entities/expense';
 import logger from './util/logger';
+import { ErrorLogic } from './logic/errors';
+import { JSError } from './data/entities/error';
 
 const port = 4000;
 
@@ -26,6 +28,7 @@ createConnection().then(async conn => {
     app.expenseLogic = new ExpenseLogic(conn.getRepository<Expense>(Expense));
     app.userLogic = new UserLogic(conn.getRepository<User>(User));
     app.authLogic = new AuthLogic(app.userLogic);
+    app.errorLogic = new ErrorLogic(conn.getRepository<JSError>(JSError));
     // need to call these after the logic is instantiated
     // otherwise they will be undefined when passed to the route
     // functions

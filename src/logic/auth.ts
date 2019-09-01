@@ -2,6 +2,7 @@ import { Credentials, NewUser } from '../data/entities/user';
 import * as bcrypt from 'bcrypt';
 import { User } from '../data/entities/user';
 import { UserLogic } from './users';
+import logger from '../util/logger';
 
 export class AuthLogic {
     static PASSWORD_SALT_ROUNDS = 10;
@@ -17,7 +18,6 @@ export class AuthLogic {
      * @param creds credentials being used to log in
      */
     async login(cred: Credentials): Promise<User> {
-        console.log('got creds', cred);
         const user = await this._userLogic.get({where: {userName: cred.userName}});
         if (user == null) {
             return null;
@@ -47,6 +47,7 @@ export class AuthLogic {
     async signup(creds: NewUser): Promise<User> {
         const existingUser = await this._userLogic.get({where: {userName: creds.userName}});
         if (existingUser != null) {
+            logger.error(`user with username [${existingUser.userName}] already exists; returning null`);
             return null;
         }
 
@@ -63,7 +64,6 @@ export class AuthLogic {
                 loggedIn: true
             }
         });
-        console.log('authenticated user', user);
         if (user != null) {
             return user;
         }

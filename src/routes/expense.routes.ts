@@ -28,7 +28,7 @@ export const expenseRoutes = (budgetLogic: BudgetLogic,
             const user = req.user as User;
             if (user == null) {
                 // not authorized/logged in
-                res.status(401).send();
+                res.sendStatus(401);
                 return;
             }
             const newExpense = (<NewExpense>req.body);
@@ -53,13 +53,13 @@ export const expenseRoutes = (budgetLogic: BudgetLogic,
         try {
             const user = req.user as User;
             if (!user) {
-                res.status(401).send();
+                res.sendStatus(401);
                 return;
             }
             const newValues = (<SimpleExpense>req.body);
             const expense = await expenseLogic.getById(newValues.id);
             if (!expense) {
-                res.status(404).send();
+                res.sendStatus(404);
                 return;
             }
             expense.title = newValues.title;
@@ -84,13 +84,13 @@ export const expenseRoutes = (budgetLogic: BudgetLogic,
             const user = req.user;
             if (user == null) {
                 // not authorized/logged in
-                res.status(401).send();
+                res.sendStatus(401);
                 return;
             }
             const exp = await expenseLogic.getById(Number(req.params.id));
             const budget = await budgetLogic.getById(exp.budgetId);
             if (budget.ownerId !== user.id) {
-                res.status(403).send();
+                res.sendStatus(403);
                 return;
             }
             const success = await expenseLogic.delete(exp.id);

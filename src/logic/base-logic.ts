@@ -28,8 +28,7 @@ export class BaseLogic<T> {
     async getById(id: number): Promise<T> {
         let item = null;
         try {
-            item = await this._repo
-                                .findOne(id);
+            item = await this._repo.findOne(id);
         } catch (e) {
             logger.error(e);
             throw e;
@@ -61,7 +60,6 @@ export class BaseLogic<T> {
         try {
             newItem = await this._repo.save(item);
         } catch (e) {
-            console.log(e);
             logger.error(e);
             throw e;
         }
