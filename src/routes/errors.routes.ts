@@ -22,7 +22,7 @@ export const errorRoutes = (errorLogic: ErrorLogic): Router => {
         err.userId = user.id;
         await errorLogic.create(err);
         logger.info('logged new js error', err);
-        res.send(204);
+        res.sendStatus(204);
     });
 
     return errorRouter;

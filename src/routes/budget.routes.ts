@@ -183,6 +183,10 @@ export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogi
                 res.sendStatus(403);
                 return;
             }
+            logger.info(`deleting ${budget.expenses.length} expenses before deleting budget`);
+            for (const expense of budget.expenses) {
+                await expenseLogic.delete(expense.id);
+            }
             const data = await budgetLogic.delete(budget.id);
             logger.info(`delete successful: ${data}`);
             res.send(data);
