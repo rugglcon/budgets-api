@@ -1,7 +1,4 @@
 import app from './app';
-import * as path from 'path';
-import * as fs from 'fs';
-import { homedir } from 'os';
 import { createConnection } from 'typeorm';
 import { BudgetLogic } from './logic/budgets';
 import { Budget } from './data/entities/budget';

@@ -20,6 +20,7 @@ export class AuthLogic {
     async login(cred: Credentials): Promise<User> {
         const user = await this._userLogic.get({where: {userName: cred.userName}});
         if (user == null) {
+            logger.error('Got a null user');
             return null;
         }
 

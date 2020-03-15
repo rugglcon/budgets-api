@@ -11,7 +11,7 @@
     "build": "tsc",
     "dev": "npm run build && node dist/server.js",
     "start": "npm run dev",
-    "test": "jest",
+    "test": "jest --env=node --passWithNoTests",
     "generate-migration": "npm run build && node ./node_modules/typeorm/cli.js migration:generate -n",
     "run-migration": "npm run build && node ./node_modules/typeorm/cli.js migration:run",
     "revert-migration": "npm run build && node ./node_modules/typeorm/cli.js migration:revert",
@@ -53,7 +53,20 @@
     "jest": "^25.1.0",
     "jest-cli": "^25.1.0",
     "nodemon": "^2.0.2",
+    "ts-jest": "^25.2.1",
     "ts-node": "^8.6.2",
     "tslint": "^6.1.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\./)(test|spec))\\.(js?|ts?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json",
+      "node"
+    ]
   }
 }

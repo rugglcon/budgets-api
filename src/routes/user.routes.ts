@@ -1,4 +1,4 @@
-import { NewUser } from 'data/entities/user';
+import { NewUser, User } from 'data/entities/user';
 import { Router } from 'express';
 import { PassportStatic } from 'passport';
 import { UserLogic } from 'logic/users';
@@ -41,7 +41,7 @@ export const userRoutes = (passport: PassportStatic,
                         return next(error);
                     }
                     if (req.user) {
-                        const token = userLogic.generateJWT(req.user);
+                        const token = userLogic.generateJWT(req.user as User);
                         logger.info('sending back token ' + token);
                         return res.status(200).send({token});
                     } else {
@@ -61,8 +61,8 @@ export const userRoutes = (passport: PassportStatic,
             if (req.user == null) {
                 return res.status(400).send({message: 'User does not exist.'});
             }
-            logger.info(`logging out user [${req.user.id}]`);
-            await authLogic.logout(req.user);
+            logger.info(`logging out user [${(req.user as User).id}]`);
+            await authLogic.logout(req.user as User);
             req.logout();
             res.sendStatus(204);
         } catch (e) {

@@ -1,6 +1,7 @@
 import { Expense, SimpleExpense } from '../data/entities/expense';
 import { Repository } from 'typeorm';
 import { BaseLogic } from './base-logic';
+import logger from '../util/logger';
 
 export class ExpenseLogic extends BaseLogic<Expense> {
     constructor(repo: Repository<Expense>) {
@@ -22,6 +23,8 @@ export class ExpenseLogic extends BaseLogic<Expense> {
                 budgetId: e.budgetId
             });
         }
+
+        logger.info(`returning ${ret.length} expenses`);
         return ret;
     }
 }

@@ -45,7 +45,7 @@ export class BaseLogic<T> {
         try {
             items = await this._repo.find();
         } catch (e) {
-            logger.info(e);
+            logger.error(e);
             throw e;
         }
         return items;
@@ -73,7 +73,7 @@ export class BaseLogic<T> {
     async create(item: T): Promise<T> {
         let created = null;
         try {
-            created = await this._repo.create(item);
+            created = this._repo.create(item);
             await this._repo.save(created);
         } catch (e) {
             logger.error(e);

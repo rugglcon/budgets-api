@@ -88,7 +88,7 @@ export const expenseRoutes = (budgetLogic: BudgetLogic,
             }
             const exp = await expenseLogic.getById(Number(req.params.id));
             const budget = await budgetLogic.getById(exp.budgetId);
-            if (budget.ownerId !== user.id) {
+            if (budget.ownerId !== (user as User).id) {
                 res.sendStatus(403);
                 return;
             }

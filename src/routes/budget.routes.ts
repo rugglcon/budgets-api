@@ -30,7 +30,7 @@ export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogi
                 res.status(401).send({message: 'Not authorized.'});
                 return;
             }
-            const data = await budgetLogic.getFrontendBudgets({where: {ownerId: user.id}});
+            const data = await budgetLogic.getFrontendBudgets({where: {ownerId: (user as User).id}});
             res.status(200).send(data);
         } catch (err) {
             logger.error('error while getting all budgets', err);
@@ -53,7 +53,7 @@ export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogi
             if (data == null) {
                 res.status(404).send({message: 'That budget wasn\'t found'});
             } else {
-                if (data.ownerId !== user.id) {
+                if (data.ownerId !== (user as User).id) {
                     res.status(403).send();
                     return;
                 }
@@ -101,7 +101,7 @@ export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogi
                 return;
             }
             const budg = (<SimpleBudget>req.body);
-            if (budg.ownerId !== user.id) {
+            if (budg.ownerId !== (user as User).id) {
                 res.sendStatus(403);
                 return;
             }
@@ -114,7 +114,7 @@ export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogi
             budget.name = budg.name;
             budget.total = budg.total;
             const data = await budgetLogic.update(budget);
-            logger.info(`user with id ${user.id} updated budget with id ${data.id}`);
+            logger.info(`user with id ${(user as User).id} updated budget with id ${data.id}`);
             res.status(200).send({
                 id: data.id,
                 total: data.total,
@@ -179,7 +179,7 @@ export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogi
                 return;
             }
             const budget = await budgetLogic.getById(Number(req.params.id));
-            if (budget.ownerId !== user.id) {
+            if (budget.ownerId !== (user as User).id) {
                 res.sendStatus(403);
                 return;
             }

@@ -1,7 +1,7 @@
 import { Budget, SimpleBudget } from '../data/entities/budget';
 import { Repository, FindManyOptions } from 'typeorm';
 import { BaseLogic } from './base-logic';
-import { Logger } from 'winston';
+import logger from '../util/logger';
 
 export class BudgetLogic extends BaseLogic<Budget> {
     constructor(repo: Repository<Budget>) {
@@ -16,6 +16,8 @@ export class BudgetLogic extends BaseLogic<Budget> {
                 id: b.id, total: b.total, name: b.name, ownerId: b.ownerId
             });
         }
+
+        logger.info(`returning ${ret.length} budgets`);
 
         return ret;
     }
