@@ -15,7 +15,7 @@
     "generate-migration": "npm run build && node ./node_modules/typeorm/cli.js migration:generate -n",
     "run-migration": "npm run build && node ./node_modules/typeorm/cli.js migration:run",
     "revert-migration": "npm run build && node ./node_modules/typeorm/cli.js migration:revert",
-    "ci": "npm run lint && npm run build && npm run test",
+    "ci": "npm run test && npm run lint && npm run build",
     "lint": "tslint src/**/*.ts"
   },
   "author": "Connor Ruggles",
