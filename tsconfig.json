@@ -12,7 +12,8 @@
         ],
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "noUnusedLocals": true
+        "noUnusedLocals": true,
+        "strict": true
     },
     "include": [
         "src/**/*.ts"
