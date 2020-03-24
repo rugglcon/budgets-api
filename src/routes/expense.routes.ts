@@ -4,7 +4,10 @@ import { NewExpense, SimpleExpense } from '../data/entities/expense';
 import { Expense } from '../data/entities/expense';
 import { ExpenseLogic } from '../logic/expenses';
 import logger from '../util/logger';
-import { User } from 'data/entities/user';
+import { User } from '../data/entities/user';
+import { BadRequestError } from '../models/bad-request';
+import { ForbiddenError } from '../models/forbidden';
+import { NotFoundError } from '../models/not-found';
 
 export const expenseRoutes = (budgetLogic: BudgetLogic,
                             expenseLogic: ExpenseLogic): Router => {
@@ -13,16 +16,15 @@ export const expenseRoutes = (budgetLogic: BudgetLogic,
     // validates that id is a number
     expensesRouter.param('id', (_req, res, next, id) => {
         const _id = Number(id);
-        if (!isNaN(_id)) {
-            next();
-        } else {
+        if (isNaN(_id)) {
             logger.error(`id was not a number: [${id}]`);
-            res.status(400).send({ message: 'Id must be a number.', id: id });
+            return next(new BadRequestError(`Id must be a number, but received ${id}.`));
         }
+        next();
     });
 
     // creates an expense
-    expensesRouter.post('/', async (req, res) => {
+    expensesRouter.post('/', async (req, res, next) => {
         try {
             const user = req.user as User;
             if (user == null) {
@@ -44,23 +46,23 @@ export const expenseRoutes = (budgetLogic: BudgetLogic,
                 title: reS.title
             } as SimpleExpense);
         } catch (err) {
-            res.status(500).send({message: 'Something went wrong.', err: err});
+            next(err);
         }
     });
 
-    expensesRouter.patch('/:id', async (req, res) => {
+    expensesRouter.patch('/:id', async (req, res, next) => {
         try {
             const user = req.user as User;
-            if (!user) {
+            if (user == null) {
                 res.sendStatus(401);
                 return;
             }
             const newValues = (<SimpleExpense>req.body);
             const expense = await expenseLogic.getById(newValues.id);
             if (!expense) {
-                res.sendStatus(404);
-                return;
+                throw new NotFoundError('Expense not found.');
             }
+
             expense.title = newValues.title;
             expense.cost = newValues.cost;
             expense.budgetId = newValues.budgetId;
@@ -74,11 +76,11 @@ export const expenseRoutes = (budgetLogic: BudgetLogic,
             } as SimpleExpense);
             return;
         } catch (err) {
-            res.status(500).send({message: 'Something went wrong.', err: err});
+            next(err);
         }
     });
 
-    expensesRouter.delete('/:id', async (req, res) => {
+    expensesRouter.delete('/:id', async (req, res, next) => {
         try {
             const user = req.user;
             if (user == null) {
@@ -87,15 +89,21 @@ export const expenseRoutes = (budgetLogic: BudgetLogic,
                 return;
             }
             const exp = await expenseLogic.getById(Number(req.params.id));
+            if (!exp) {
+                throw new NotFoundError('Expense not found.');
+            }
+
             const budget = await budgetLogic.getById(exp.budgetId);
+            if (!budget) {
+                throw new NotFoundError('Budget not found.');
+            }
             if (budget.ownerId !== (user as User).id) {
-                res.sendStatus(403);
-                return;
+                throw new ForbiddenError('You don\'t have access to do this operation.');
             }
             const success = await expenseLogic.delete(exp.id);
             res.send(success);
         } catch (err) {
-            res.status(500).send({message: 'Something went wrong.', err: err});
+            next(err);
         }
     });
 

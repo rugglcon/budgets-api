@@ -16,8 +16,8 @@ export const errorRoutes = (errorLogic: ErrorLogic): Router => {
         }
         const err = new JSError();
         err.stackTrace = req.body.stackTrace;
-        err.userAgent = req.useragent.source;
-        err.ipAddress = req.connection.remoteAddress;
+        err.userAgent = req.useragent?.source as string;
+        err.ipAddress = req.connection.remoteAddress as string;
         err.timestamp = new Date();
         err.userId = user.id;
         await errorLogic.create(err);

@@ -1,4 +1,4 @@
-import app from './app';
+import { App } from './app';
 import { createConnection } from 'typeorm';
 import { BudgetLogic } from './logic/budgets';
 import { Budget } from './data/entities/budget';
@@ -20,12 +20,15 @@ const port = 4000;
 // );
 
 createConnection().then(async conn => {
-    app.dbConnection = conn;
-    app.budgetLogic = new BudgetLogic(conn.getRepository<Budget>(Budget));
-    app.expenseLogic = new ExpenseLogic(conn.getRepository<Expense>(Expense));
-    app.userLogic = new UserLogic(conn.getRepository<User>(User));
-    app.authLogic = new AuthLogic(app.userLogic);
-    app.errorLogic = new ErrorLogic(conn.getRepository<JSError>(JSError));
+    const userLogic = new UserLogic(conn.getRepository<User>(User));
+    const app = new App(
+        conn,
+        new BudgetLogic(conn.getRepository<Budget>(Budget)),
+        new ExpenseLogic(conn.getRepository<Expense>(Expense)),
+        userLogic,
+        new AuthLogic(userLogic),
+        new ErrorLogic(conn.getRepository<JSError>(JSError))
+    );
     // need to call these after the logic is instantiated
     // otherwise they will be undefined when passed to the route
     // functions

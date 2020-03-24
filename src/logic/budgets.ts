@@ -10,12 +10,14 @@ export class BudgetLogic extends BaseLogic<Budget> {
 
     async getFrontendBudgets(options: FindManyOptions<Budget>): Promise<SimpleBudget[]> {
         const budgets = await this.getMany(options);
-        const ret: SimpleBudget[] = [];
-        for (const b of budgets) {
-            ret.push({
-                id: b.id, total: b.total, name: b.name, ownerId: b.ownerId
-            });
-        }
+        const ret = budgets.map(b => {
+            return {
+                id: b.id,
+                total: b.total,
+                name: b.name,
+                ownerId: b.ownerId
+            };
+        });
 
         logger.info(`returning ${ret.length} budgets`);
 
