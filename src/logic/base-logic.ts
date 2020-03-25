@@ -6,7 +6,9 @@ import { BaseError } from '../models/errors/base-error';
 export class BaseLogic<T> {
     protected _repo: Repository<T>;
 
-    constructor(repo: Repository<T>) { this._repo = repo; }
+    constructor(repo: Repository<T>) {
+        this._repo = repo;
+    }
 
     /**
      * Deletes the entity with the given id in the database
