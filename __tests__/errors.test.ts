@@ -1,4 +1,4 @@
-import { Repository } from "typeorm"
+import { Repository } from 'typeorm'
 import { ErrorLogic } from '../src/logic/errors';
 import { JSError } from '../src/data/entities/error';
 

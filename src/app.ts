@@ -17,7 +17,7 @@ import logger from './util/logger';
 import { ErrorLogic } from './logic/errors';
 import { errorRoutes } from './routes/errors.routes';
 import * as useragent from 'express-useragent';
-import { BaseError } from './models/base-error';
+import { BaseError } from './models/errors/base-error';
 
 export class App {
     public app: express.Application;

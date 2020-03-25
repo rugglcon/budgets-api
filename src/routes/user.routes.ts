@@ -4,7 +4,7 @@ import { PassportStatic } from 'passport';
 import { UserLogic } from '../logic/users';
 import { AuthLogic } from '../logic/auth';
 import logger from '../util/logger';
-import { BadRequestError } from '../models/bad-request';
+import { BadRequestError } from '../models/errors/bad-request';
 
 /**
  * Creates the user routes

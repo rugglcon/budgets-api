@@ -1,5 +1,5 @@
-import { BaseLogic } from "../src/logic/base-logic";
-import { Repository } from "typeorm";
+import { BaseLogic } from '../src/logic/base-logic';
+import { Repository } from 'typeorm';
 
 describe('BaseLogic', () => {
     let logic: BaseLogic<Number>;

@@ -1,5 +1,5 @@
-import { Repository, FindManyOptions, FindConditions } from "typeorm";
-import { Budget } from "../src/data/entities/budget";
+import { Repository, FindManyOptions, FindConditions } from 'typeorm';
+import { Budget } from '../src/data/entities/budget';
 import { BudgetLogic } from '../src/logic/budgets';
 import logger from '../src/util/logger';
 

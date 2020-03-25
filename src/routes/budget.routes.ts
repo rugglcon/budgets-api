@@ -4,10 +4,10 @@ import { BudgetLogic } from '../logic/budgets';
 import { Budget, NewBudget, SimpleBudget } from '../data/entities/budget';
 import { User } from '../data/entities/user';
 import { ExpenseLogic } from '../logic/expenses';
-import { BadRequestError } from '../models/bad-request';
-import { UnauthorizedError } from '../models/unauthorized';
-import { ForbiddenError } from '../models/forbidden';
-import { NotFoundError } from '../models/not-found';
+import { BadRequestError } from '../models/errors/bad-request';
+import { UnauthorizedError } from '../models/errors/unauthorized';
+import { ForbiddenError } from '../models/errors/forbidden';
+import { NotFoundError } from '../models/errors/not-found';
 
 export const budgetRoutes = (budgetLogic: BudgetLogic, expenseLogic: ExpenseLogic): Router => {
     const budgetsRouter = Router();

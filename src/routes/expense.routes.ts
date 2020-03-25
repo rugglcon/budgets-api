@@ -5,9 +5,9 @@ import { Expense } from '../data/entities/expense';
 import { ExpenseLogic } from '../logic/expenses';
 import logger from '../util/logger';
 import { User } from '../data/entities/user';
-import { BadRequestError } from '../models/bad-request';
-import { ForbiddenError } from '../models/forbidden';
-import { NotFoundError } from '../models/not-found';
+import { BadRequestError } from '../models/errors/bad-request';
+import { ForbiddenError } from '../models/errors/forbidden';
+import { NotFoundError } from '../models/errors/not-found';
 
 export const expenseRoutes = (budgetLogic: BudgetLogic,
                             expenseLogic: ExpenseLogic): Router => {

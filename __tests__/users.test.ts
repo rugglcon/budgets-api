@@ -1,5 +1,5 @@
-import { Repository } from "typeorm";
-import { User } from "../src/data/entities/user";
+import { Repository } from 'typeorm';
+import { User } from '../src/data/entities/user';
 import { UserLogic } from '../src/logic/users';
 
 describe('UserLogic', () => {

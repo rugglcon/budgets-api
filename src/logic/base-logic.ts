@@ -1,7 +1,7 @@
 import { Repository, FindManyOptions, FindOneOptions } from 'typeorm';
 import logger from '../util/logger';
-import { NotFoundError } from '../models/not-found';
-import { BaseError } from '../models/base-error';
+import { NotFoundError } from '../models/errors/not-found';
+import { BaseError } from '../models/errors/base-error';
 
 export class BaseLogic<T> {
     protected _repo: Repository<T>;

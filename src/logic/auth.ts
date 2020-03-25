@@ -3,9 +3,9 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../data/entities/user';
 import { UserLogic } from './users';
 import logger from '../util/logger';
-import { BadRequestError } from '../models/bad-request';
-import { NotFoundError } from '../models/not-found';
-import { UnauthorizedError } from '../models/unauthorized';
+import { BadRequestError } from '../models/errors/bad-request';
+import { NotFoundError } from '../models/errors/not-found';
+import { UnauthorizedError } from '../models/errors/unauthorized';
 
 export class AuthLogic {
     static PASSWORD_SALT_ROUNDS = 10;
