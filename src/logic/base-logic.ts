@@ -62,8 +62,7 @@ export class BaseLogic<T> {
      */
     async update(item: T): Promise<T> {
         try {
-            const newItem = await this._repo.save(item);
-            return newItem;
+            return await this._repo.save(item);
         } catch (e) {
             logger.error(e);
             throw new BaseError(e.message, 500, e);

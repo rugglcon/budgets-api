@@ -10,12 +10,12 @@ if [ $status -ne 0 ]; then
     exit 1
 fi
 
-npm run ci
+# npm run ci
 
-status=$?
-if [ $status -ne 0 ]; then
-    echo "something went wrong running npm run build"
-    exit 1
-fi
+# status=$?
+# if [ $status -ne 0 ]; then
+#     echo "something went wrong running npm run build"
+#     exit 1
+# fi
 
 /bin/systemctl restart budget_api.service
