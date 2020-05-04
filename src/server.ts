@@ -13,6 +13,7 @@ import { JSError } from './data/entities/error';
 
 const port = 4000;
 
+// TODO: actually reimplement this
 // const configs = JSON.parse(
 //     fs.readFileSync(
 //         path.join(homedir(), '.config/budgets/config.json')
