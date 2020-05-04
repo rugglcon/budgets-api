@@ -9,8 +9,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "npm run build && node dist/server.js",
-    "start": "npm run dev",
+    "dev": "tsnd --watch src src/server.ts",
+    "start": "npm run build && node dist/server.js",
     "test": "NODE_ENV=test jest --passWithNoTests",
     "generate-migration": "npm run build && node ./node_modules/typeorm/cli.js migration:generate -n",
     "run-migration": "npm run build && node ./node_modules/typeorm/cli.js migration:run",
@@ -54,10 +54,9 @@
     "express-jwt": "^5.3.3",
     "jest": "^25.5.4",
     "jest-cli": "^25.5.4",
-    "nodemon": "^2.0.3",
     "supertest": "^4.0.2",
     "ts-jest": "^25.4.0",
-    "ts-node": "^8.9.1",
+    "ts-node-dev": "^1.0.0-pre.44",
     "tslint": "^6.1.2"
   },
   "jest": {
