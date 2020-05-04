@@ -3,6 +3,9 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../data/entities/user';
 import { UserLogic } from './users';
 import logger from '../util/logger';
+import { BadRequestError } from '../models/errors/bad-request';
+import { NotFoundError } from '../models/errors/not-found';
+import { UnauthorizedError } from '../models/errors/unauthorized';
 
 export class AuthLogic {
     static PASSWORD_SALT_ROUNDS = 10;
@@ -20,22 +23,20 @@ export class AuthLogic {
     async login(cred: Credentials): Promise<User> {
         const user = await this._userLogic.get({where: {userName: cred.userName}});
         if (user == null) {
-            return null;
+            logger.error('Got a null user');
+            throw new NotFoundError(`User with username ${cred.userName} not found.`);
         }
 
         if (!(await bcrypt.compare(cred.password, user.password))) {
-            return null;
+            throw new UnauthorizedError('Username and password do not match.');
         }
 
         user.loggedIn = true;
-        // const token = await this._tokenLogic.create(new Token());
-        // user.tokenId = token.id;
         return await this._userLogic.update(user);
     }
 
     async logout(user: User): Promise<void> {
         user.loggedIn = false;
-        // user.token = null;
         await this._userLogic.update(user);
     }
 
@@ -47,8 +48,8 @@ export class AuthLogic {
     async signup(creds: NewUser): Promise<User> {
         const existingUser = await this._userLogic.get({where: {userName: creds.userName}});
         if (existingUser != null) {
-            logger.error(`user with username [${existingUser.userName}] already exists; returning null`);
-            return null;
+            logger.error(`user with username [${existingUser.userName}] already exists`);
+            throw new BadRequestError(`User with username ${existingUser.userName} already exists.`);
         }
 
         const password = creds.password;
@@ -57,16 +58,16 @@ export class AuthLogic {
         return await this.login({userName: newUser.userName, password});
     }
 
-    async authenticate(token: string): Promise<User> {
+    async authenticate(userName: string): Promise<User> {
         const user = await this._userLogic.get({
             where: {
-                token: token,
+                userName,
                 loggedIn: true
             }
         });
-        if (user != null) {
-            return user;
+        if (user == null) {
+            throw new NotFoundError(`User with username ${userName} not found as being logged in.`);
         }
-        return null;
+        return user;
     }
 }

@@ -9,13 +9,13 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "npm run build && node dist/server.js",
-    "start": "npm run dev",
-    "test": "jest",
+    "dev": "tsnd --watch src src/server.ts",
+    "start": "npm run build && node dist/server.js",
+    "test": "NODE_ENV=test jest --passWithNoTests",
     "generate-migration": "npm run build && node ./node_modules/typeorm/cli.js migration:generate -n",
     "run-migration": "npm run build && node ./node_modules/typeorm/cli.js migration:run",
     "revert-migration": "npm run build && node ./node_modules/typeorm/cli.js migration:revert",
-    "ci": "npm run lint && npm run build && npm run test",
+    "ci": "npm run lint && npm run test && npm run build",
     "lint": "tslint src/**/*.ts"
   },
   "author": "Connor Ruggles",
@@ -23,10 +23,11 @@
   "dependencies": {
     "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
-    "concurrently": "^5.1.0",
+    "concurrently": "^5.2.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-useragent": "^1.0.13",
+    "http-status": "^1.4.2",
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1",
     "passport": "^0.4.1",
@@ -40,20 +41,38 @@
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
     "@types/cors": "^2.8.6",
-    "@types/express": "^4.17.3",
+    "@types/express": "^4.17.6",
     "@types/express-useragent": "^1.0.0",
-    "@types/jsonwebtoken": "^8.3.8",
-    "@types/mysql": "^2.15.9",
-    "@types/node": "^12.12.30",
+    "@types/jest": "^25.2.1",
+    "@types/jsonwebtoken": "^8.3.9",
+    "@types/mysql": "^2.15.10",
+    "@types/node": "^13.13.4",
     "@types/passport": "^1.0.3",
     "@types/passport-jwt": "^3.0.3",
     "@types/passport-local": "^1.0.33",
     "@types/winston": "^2.4.4",
-    "express-jwt": "^5.3.1",
-    "jest": "^25.1.0",
-    "jest-cli": "^25.1.0",
-    "nodemon": "^2.0.2",
-    "ts-node": "^8.6.2",
-    "tslint": "^6.1.0"
+    "express-jwt": "^5.3.3",
+    "jest": "^25.5.4",
+    "jest-cli": "^25.5.4",
+    "supertest": "^4.0.2",
+    "ts-jest": "^25.4.0",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "tslint": "^6.1.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\./)(test|spec))\\.(js?|ts?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json",
+      "node"
+    ],
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
   }
 }

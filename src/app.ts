@@ -17,8 +17,9 @@ import logger from './util/logger';
 import { ErrorLogic } from './logic/errors';
 import { errorRoutes } from './routes/errors.routes';
 import * as useragent from 'express-useragent';
+import { BaseError } from './models/errors/base-error';
 
-class App {
+export class App {
     public app: express.Application;
     dbConnection: typeorm.Connection;
     budgetLogic: BudgetLogic;
@@ -27,7 +28,15 @@ class App {
     authLogic: AuthLogic;
     errorLogic: ErrorLogic;
 
-    constructor() {
+    constructor(dbConnection: typeorm.Connection, budgetLogic: BudgetLogic,
+        expenseLogic: ExpenseLogic, userLogic: UserLogic,
+        authLogic: AuthLogic, errorLogic: ErrorLogic) {
+        this.dbConnection = dbConnection;
+        this.budgetLogic = budgetLogic;
+        this.expenseLogic = expenseLogic,
+        this.userLogic = userLogic;
+        this.authLogic = authLogic;
+        this.errorLogic = errorLogic;
         this.app = express();
     }
 
@@ -46,13 +55,7 @@ class App {
             }, async (userName, password, done) => {
                 try {
                     const user = await this.authLogic.login({ userName, password });
-                    if (user) {
-                        logger.info(`user with id [${user.id}] has logged in`);
-                        return done(null, user);
-                    } else {
-                        logger.error('Someone tried to log in unsuccessfully');
-                        return done('User not found', null);
-                    }
+                    return done(null, user);
                 } catch (err) {
                     logger.error('An error occurred:', err);
                     return done(err, null);
@@ -86,9 +89,17 @@ class App {
         });
 
         passport.deserializeUser((id: number, done) => {
-            this.userLogic.getById(id)
-                            .then(user => { logger.info('got user in deserializer', user.userName); done(null, user); })
-                            .catch(err => { logger.error('yikes', err); done(err, null); });
+            this.userLogic.getById(id).then(user => {
+                if (!user) {
+                    logger.error('could not retrieve user');
+                    return done('User not found.');
+                }
+                logger.info('got user in deserializer', user.userName);
+                done(null, user);
+            }).catch(err => {
+                logger.error('yikes', err);
+                done(err, null);
+            });
         });
     }
 
@@ -122,6 +133,17 @@ class App {
             session: true
         }), errorRoutes(this.errorLogic));
         logger.info('instantiated error routes');
+
+        /**
+         * ERROR HANDLER
+         */
+        this.app.use((err: BaseError, req: express.Request, res: express.Response, next: express.NextFunction) => {
+            if (!err) {
+                next();
+            }
+
+            logger.error(`received error with status ${err.status}, message ${err.message}`);
+            res.status(err.status || 500).send({message: err.message});
+        });
     }
 }
-export default new App();

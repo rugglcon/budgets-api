@@ -12,7 +12,9 @@
         ],
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "noUnusedLocals": true
+        "noUnusedLocals": true,
+        "strict": true,
+        "strictPropertyInitialization": false
     },
     "include": [
         "src/**/*.ts"

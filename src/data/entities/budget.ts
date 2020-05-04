@@ -61,7 +61,7 @@ export class Budget {
     expenses: Expense[];
 
     /**
-     * "budget" of the budget
+     * 'budget' of the budget
      */
     @Column({
         default: 0,

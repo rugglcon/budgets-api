@@ -1,10 +1,14 @@
 import { Repository, FindManyOptions, FindOneOptions } from 'typeorm';
 import logger from '../util/logger';
+import { NotFoundError } from '../models/errors/not-found';
+import { BaseError } from '../models/errors/base-error';
 
 export class BaseLogic<T> {
     protected _repo: Repository<T>;
 
-    constructor(repo: Repository<T>) { this._repo = repo; }
+    constructor(repo: Repository<T>) {
+        this._repo = repo;
+    }
 
     /**
      * Deletes the entity with the given id in the database
@@ -12,6 +16,10 @@ export class BaseLogic<T> {
      */
     async delete(id: number): Promise<boolean> {
         const item = await this._repo.findOne(id);
+        if (!item) {
+            throw new NotFoundError('Item not found.');
+        }
+
         try {
             await this._repo.remove(item);
         } catch (e) {
@@ -25,30 +33,27 @@ export class BaseLogic<T> {
      * Gets an entity from the database with the given id
      * @param id id of the entity to retrieve
      */
-    async getById(id: number): Promise<T> {
-        let item = null;
+    async getById(id: number): Promise<T | undefined> {
         try {
-            item = await this._repo.findOne(id);
+            const item = await this._repo.findOne(id);
+            logger.info(`got item with id: ${id}`);
+            return item;
         } catch (e) {
             logger.error(e);
-            throw e;
+            throw new BaseError(e.message, 500, e);
         }
-        logger.info(`got item with id: ${id}`);
-        return item;
     }
 
     /**
      * Retrieves all entries of `T` in the database
      */
     async getAll(): Promise<T[]> {
-        let items = null;
         try {
-            items = await this._repo.find();
+            return await this._repo.find();
         } catch (e) {
-            logger.info(e);
-            throw e;
+            logger.error(e);
+            throw new BaseError(e.message, 500, e);
         }
-        return items;
     }
 
     /**
@@ -56,14 +61,12 @@ export class BaseLogic<T> {
      * @param item item to be updated
      */
     async update(item: T): Promise<T> {
-        let newItem = null;
         try {
-            newItem = await this._repo.save(item);
+            return await this._repo.save(item);
         } catch (e) {
             logger.error(e);
-            throw e;
+            throw new BaseError(e.message, 500, e);
         }
-        return newItem;
     }
 
     /**
@@ -71,36 +74,31 @@ export class BaseLogic<T> {
      * @param item base entity to be created
      */
     async create(item: T): Promise<T> {
-        let created = null;
         try {
-            created = await this._repo.create(item);
+            const created = this._repo.create(item);
             await this._repo.save(created);
+            return created;
         } catch (e) {
             logger.error(e);
-            throw e;
+            throw new BaseError(e.message, 500, e);
         }
-        return created;
     }
 
-    async get(options: FindOneOptions): Promise<T> {
-        let item = null;
+    async get(options: FindOneOptions): Promise<T | undefined> {
         try {
-            item = await this._repo.findOne(options);
+            return await this._repo.findOne(options);
         } catch (e) {
             logger.error(e);
-            throw e;
+            throw new BaseError(e.message, 500, e);
         }
-        return item;
     }
 
     async getMany(options: FindManyOptions): Promise<T[]> {
-        let items = null;
         try {
-            items = await this._repo.find(options);
+            return await this._repo.find(options);
         } catch (e) {
             logger.error(e);
-            throw e;
+            throw new BaseError(e.message, 500, e);
         }
-        return items;
     }
 }

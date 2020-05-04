@@ -1,6 +1,7 @@
 import { Expense, SimpleExpense } from '../data/entities/expense';
 import { Repository } from 'typeorm';
 import { BaseLogic } from './base-logic';
+import logger from '../util/logger';
 
 export class ExpenseLogic extends BaseLogic<Expense> {
     constructor(repo: Repository<Expense>) {
@@ -13,15 +14,16 @@ export class ExpenseLogic extends BaseLogic<Expense> {
 
     async getFrontendExpensesForBudget(budgetId: number): Promise<SimpleExpense[]> {
         const expenses = await this.getExpensesForBudget(budgetId);
-        const ret: SimpleExpense[] = [];
-        for (const e of expenses) {
-            ret.push({
+        const ret = expenses.map(e => {
+            return {
                 id: e.id,
                 cost: e.cost,
                 title: e.title,
                 budgetId: e.budgetId
-            });
-        }
+            };
+        });
+
+        logger.info(`returning ${ret.length} expenses`);
         return ret;
     }
 }

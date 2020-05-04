@@ -1,9 +1,10 @@
-import { NewUser } from 'data/entities/user';
+import { NewUser, User } from 'data/entities/user';
 import { Router } from 'express';
 import { PassportStatic } from 'passport';
-import { UserLogic } from 'logic/users';
-import { AuthLogic } from 'logic/auth';
+import { UserLogic } from '../logic/users';
+import { AuthLogic } from '../logic/auth';
 import logger from '../util/logger';
+import { BadRequestError } from '../models/errors/bad-request';
 
 /**
  * Creates the user routes
@@ -16,7 +17,7 @@ export const userRoutes = (passport: PassportStatic,
     userRouter.param('id', (_req, res, next, id) => {
         const _id = Number(id);
         if (isNaN(_id)) {
-            return res.status(400).send({ message: 'Id must be a number.', id: id });
+            return next(new BadRequestError(`Id must be a number, but received ${id}.`));
         }
         next();
     });
@@ -41,7 +42,7 @@ export const userRoutes = (passport: PassportStatic,
                         return next(error);
                     }
                     if (req.user) {
-                        const token = userLogic.generateJWT(req.user);
+                        const token = userLogic.generateJWT(req.user as User);
                         logger.info('sending back token ' + token);
                         return res.status(200).send({token});
                     } else {
@@ -56,23 +57,22 @@ export const userRoutes = (passport: PassportStatic,
     // logs a user out
     userRouter.post('/logout', passport.authenticate('jwt', {
         session: true
-    }), async (req, res) => {
+    }), async (req, res, next) => {
         try {
             if (req.user == null) {
-                return res.status(400).send({message: 'User does not exist.'});
+                return next(new BadRequestError('User does not exist.'));
             }
-            logger.info(`logging out user [${req.user.id}]`);
-            await authLogic.logout(req.user);
+            logger.info(`logging out user [${(req.user as User).id}]`);
+            await authLogic.logout(req.user as User);
             req.logout();
             res.sendStatus(204);
         } catch (e) {
-            logger.error(e.toString());
-            res.status(500).send({message: 'Something went wrong.', err: e});
+            next(e);
         }
     });
 
     // creates a user
-    userRouter.post('/', async (req, res) => {
+    userRouter.post('/', async (req, res, next) => {
         // creates user and logs them in
         const newUser: NewUser = {
             userName: req.body.userName,
@@ -82,11 +82,15 @@ export const userRoutes = (passport: PassportStatic,
             lastName: req.body.lastName,
             signUpDate: new Date()
         };
-        const user = await authLogic.signup(newUser);
-        logger.debug(`registered new user with username ${user.userName}`);
-        const token = userLogic.generateJWT(user);
-        logger.info('generated token for new user: ' + token);
-        res.status(200).send({token});
+        try {
+            const user = await authLogic.signup(newUser);
+            logger.debug(`registered new user with username ${user.userName}`);
+            const token = userLogic.generateJWT(user);
+            logger.info('generated token for new user: ' + token);
+            res.status(200).send({token});
+        } catch (err) {
+            next(err);
+        }
     });
 
     return userRouter;
