@@ -33,11 +33,17 @@ jobs:
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_KEY }}
+        password: ${{ secrets.SSH_PASS }}
         port: ${{ secrets.SSH_PORT }}
         source: "./dist/*"
         target: ${{ secrets.SSH_DEST }}
     - name: restart budgets server
-      run: ssh -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} ${{ secrets.SSH_CMD }}
+      uses: garygrossgarten/github-action-ssh@release
+      with:
+        command: ${{ secrets.SSH_CMD }}
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        password: ${{ secrets.SSH_PASS }}
+        port: ${{ secrets.SSH_PORT }}
       env:
         CI: true
